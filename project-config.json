@@ -1,0 +1,13 @@
+{
+    "name": "fruit-machine-game-jam-2024",
+    "description": "Project fruit-machine-game-jam-2024",
+    "toolkit": "basic",
+    "sources": [
+        "src/main.bas"
+    ],
+    "build": "debug",
+    "definitions": [],
+    "includes": [],
+    "args": [],
+    "compiler": ""
+}
