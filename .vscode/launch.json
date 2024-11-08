@@ -5,7 +5,7 @@
             "type": "vice",
             "request": "launch",
             "name": "Launch Vice",
-            "program": "${workspaceFolder}/build/${workspaceFolder}.prg",
+            "program": "${workspaceFolder}/build/${workspaceFolderBasename}.prg",
             "preLaunchTask": "${defaultBuildTask}"
         },
         {
