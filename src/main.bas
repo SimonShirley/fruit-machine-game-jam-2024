@@ -43,28 +43,28 @@ Print_Machine:
     PRINT
     RETURN
 
-Print_Credits:
+Format_Credit_String:
     REM Print Credits
-    C1 = CR / 100
-    CR$ = STR$(C1)
+    REM CV is the passed in value for processing
+    
+    CF = CV / 100 : REM Convert to float and turn cents into dollars
+    CV$ = STR$(CF)
 
-    IF C1 = INT(C1) THEN Print_Credits__Set_Pence_DoubleZero
-    IF C1 < 1 THEN Print_Credits__Set_Leading_Zero
-    GOTO Print_Credits__Set_Trailing_Zero
+    IF CF = INT(CF) THEN Format_Credit_String__Set_Pence_DoubleZero
+    IF CF < 1 THEN Format_Credit_String__Set_Leading_Zero
+    GOTO Format_Credit_String__Set_Trailing_Zero
 
-Print_Credits__Set_Pence_DoubleZero:
-    CR$ = CR$ + ".0"
-    GOTO Print_Credits__Set_Trailing_Zero
+Format_Credit_String__Set_Pence_DoubleZero:
+    CV$ = CV$ + ".0"
+    GOTO Format_Credit_String__Set_Trailing_Zero
 
-Print_Credits__Set_Leading_Zero:
-    CR$ = "0" + CR$
+Format_Credit_String__Set_Leading_Zero:
+    CV$ = "0" + CV$
 
-Print_Credits__Set_Trailing_Zero:
-    CR$ = CR$ + "0"
+Format_Credit_String__Set_Trailing_Zero:
+    CV$ = CV$ + "0"
 
-Print_Credits__Continue:
-    PRINT "Credits: $" + CR$
-    PRINT
+Format_Credit_String__Continue:    
     RETURN
 
 Print_Instructions:
@@ -90,12 +90,24 @@ Full_Win:
     REM Full Win (All 3 matching)
     CR = CR + VAL(FR$(R1%,1))
     PRINT FR$(R1%,0) + " WIN!!"
+
+    CV = VAL(FR$(R1%,1)) : REM Set credit value for internal processing
+    GOSUB Format_Credit_String : REM Print Credits
+    PRINT "YOU WIN: $" + CV$
+    PRINT
+
     RETURN
 
 Half_Win:
     REM Half Win (Only first and second matching)
     CR = CR + HW
     PRINT "HALF WIN!!"
+
+    CV = HW : REM Set credit value for internal processing
+    GOSUB Format_Credit_String : REM Print Credits
+    PRINT "YOU WIN: $" + CV$
+    PRINT
+
     RETURN
 
 Initialise_Program:
@@ -112,7 +124,11 @@ Start:
     IF R1% = R2% AND R2% = R3% THEN GOSUB Full_Win
     IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win
 
-    GOSUB Print_Credits : REM Print Credits
+    CV = CR : REM Set credit value for internal processing
+    GOSUB Format_Credit_String : REM Print Credits
+    PRINT "Credits: $" + CV$
+    PRINT
+
     GOSUB Print_Instructions : REM Print Instructions
 
 Get_User_Instruction:
