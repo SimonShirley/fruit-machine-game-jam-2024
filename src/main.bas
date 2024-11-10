@@ -69,7 +69,7 @@ Print_Credits__Continue:
 
 Print_Instructions:
     REM Print Instructions
-    PRINT "[SPACEBAR] Spin Reels"
+    PRINT "[S] Spin Reels"
     PRINT "[Q] Quit"
     PRINT
     RETURN
@@ -115,11 +115,14 @@ Start:
     GOSUB Print_Credits : REM Print Credits
     GOSUB Print_Instructions : REM Print Instructions
 
+Get_User_Instruction:
     GOSUB Wait_Key : REM Get Keyboard Key
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
-    IF K$ <> " " THEN GOSUB Wait_Key
+    IF K$ = "S" THEN Play_Again
+    GOTO Get_User_Instruction
 
+Play_Again:
     REM Deduct credit and play again
     IF CR <= 0 THEN END
     CR = CR - 10
