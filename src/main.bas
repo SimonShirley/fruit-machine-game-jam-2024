@@ -48,7 +48,7 @@ Format_Credit_String:
     REM CV is the passed in value for processing
     
     CF = CV / 100 : REM Convert to float and turn cents into dollars
-    CV$ = STR$(CF)
+    CV$ = MID$(STR$(CF),2)
 
     IF CF = INT(CF) THEN Format_Credit_String__Set_Pence_DoubleZero
     IF CF < 1 THEN Format_Credit_String__Set_Leading_Zero
