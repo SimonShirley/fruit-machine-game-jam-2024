@@ -34,7 +34,6 @@ Get_Random:
 
 Print_Machine:
     REM Print Machine Graphics
-    PRINT "{clr}"
     PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{178}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{178}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
     PRINT "   {98}          {98}          {98}          {98}"
     PRINT "   {98} " FR$(R1%,0) " {98} " FR$(R2%,0) " {98} " FR$(R3%,0) " {98}"
@@ -69,7 +68,13 @@ Format_Credit_String__Continue:
 
 Print_Instructions:
     REM Print Instructions
+    IF CR > 0 THEN Print_Instructions__In_Credit
+    PRINT "[P] PLAY AGAIN"
+    GOTO Print_Instructions__Continue
+Print_Instructions__In_Credit:
     PRINT "[S] Spin Reels"
+
+Print_Instructions__Continue:
     PRINT "[Q] Quit"
     PRINT
     RETURN
@@ -89,45 +94,65 @@ Wait_Key:
 Full_Win:
     REM Full Win (All 3 matching)
     CR = CR + VAL(FR$(R1%,1))
-    PRINT FR$(R1%,0) + " WIN!!"
+
+    SS$ = "" : REM SS$ = Status Strip string
+    REM Remove Spaces from Reel string
+    FOR I = 1 TO 8
+    SC$ = MID$(FR$(R1%,0), I, 1) : REM Test character
+    IF SC$ = " " THEN Full_Win__Next
+    SS$ = SS$ + SC$
+Full_Win__Next:
+    NEXT I
 
     CV = VAL(FR$(R1%,1)) : REM Set credit value for internal processing
     GOSUB Format_Credit_String : REM Print Credits
-    PRINT "YOU WIN: $" + CV$
-    PRINT
 
+    SS$ = SS$ + " WIN - YOU WIN: $" + CV$
     RETURN
 
 Half_Win:
     REM Half Win (Only first and second matching)
     CR = CR + HW
-    PRINT "HALF WIN!!"
-
+    
     CV = HW : REM Set credit value for internal processing
     GOSUB Format_Credit_String : REM Print Credits
-    PRINT "YOU WIN: $" + CV$
-    PRINT
 
+    SS$ = "HALF WIN - YOU WIN: $" + CV$ : REM WV$ = Win string
+    RETURN
+
+Print_Status_Strip:
+    PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
+    PRINT SPC(4); SPC((32 - LEN(SS$)) / 2); SS$
+    PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
+    PRINT
     RETURN
 
 Initialise_Program:
     REM Initialise Program
     GOSUB Initialise_Fruits
-    CR = 100 : REM CR = Credits
     HW = 20 : REM HW = Half Win Credits
 
-Start:    
+Initialise_Credits:
+    IC = 100 : REM Initial Credits
+    CR = IC : REM CR = Credits    
+
+Start:
     GOSUB Get_Reels : REM Get Reels
-    GOSUB Print_Machine : REM Print Machine Graphics
+
+    SS$ = ""
 
     REM Check for Win
     IF R1% = R2% AND R2% = R3% THEN GOSUB Full_Win
     IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win
 
+    PRINT "{clr}"
+    GOSUB Print_Machine : REM Print Machine Graphics
+    GOSUB Print_Status_Strip
+
     CV = CR : REM Set credit value for internal processing
     GOSUB Format_Credit_String : REM Print Credits
-    PRINT "Credits: $" + CV$
-    PRINT
+    SS$ = "Credits: $" + CV$
+    GOSUB Print_Status_Strip
 
     GOSUB Print_Instructions : REM Print Instructions
 
@@ -135,10 +160,11 @@ Get_User_Instruction:
     GOSUB Wait_Key : REM Get Keyboard Key
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
-    IF K$ = "S" THEN Play_Again
+    IF CR > 0 AND K$ = "S" THEN Play_Next_Credit
+    IF CR <= 0 AND K$ = "P" THEN Initialise_Credits
     GOTO Get_User_Instruction
 
-Play_Again:
+Play_Next_Credit:
     REM Deduct credit and play again
     IF CR <= 0 THEN END
     CR = CR - 10
