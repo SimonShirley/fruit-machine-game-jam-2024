@@ -194,6 +194,10 @@ Start:
     SS$ = "Credits: $" + CV$
     GOSUB Print_Credit_Strip_Text
 
+    IF CR > 0 THEN Get_User_Instruction
+    XP% = 0 : YP% = 15 : GOSUB Set_Cursor_Position
+    GOSUB Print_Instructions
+
 Get_User_Instruction:
     GOSUB Wait_Key : REM Get Keyboard Key
     REM Next instruction based on key press
