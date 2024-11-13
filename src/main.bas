@@ -116,7 +116,7 @@ Full_Win__Next:
     CV = VAL(FR$(R1%,1)) : REM Set credit value for internal processing
     GOSUB Format_Credit_String : REM Print Credits
 
-    SS$ = SS$ + " WIN - YOU WIN: $" + CV$
+    SS$ = SS$ + " WIN - YOU WIN: {92}" + CV$
     RETURN
 
 Half_Win:
@@ -126,7 +126,7 @@ Half_Win:
     CV = HW : REM Set credit value for internal processing
     GOSUB Format_Credit_String : REM Print Credits
 
-    SS$ = "HALF WIN - YOU WIN: $" + CV$ : REM WV$ = Win string
+    SS$ = "HALF WIN - YOU WIN: {92}" + CV$ : REM WV$ = Win string
     RETURN
 
 Print_Win_Strip_Text:
@@ -191,7 +191,7 @@ Start:
 
     CV = CR : REM Set credit value for internal processing
     GOSUB Format_Credit_String : REM Print Credits
-    SS$ = "Credits: $" + CV$
+    SS$ = "Credits: {92}" + CV$
     GOSUB Print_Credit_Strip_Text
 
     IF CR > 0 THEN Get_User_Instruction
