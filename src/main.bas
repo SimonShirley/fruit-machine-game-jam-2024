@@ -27,10 +27,14 @@ Initialise_Fruits:
 
     RETURN
 
+Set_Cursor_Position:
+    POKE 211,0 : POKE 214, 0 : SYS 58732 : REM Set cursor to x=0, y=0
+    RETURN
+
 Get_Random:
     REM Get random number
     RD% = INT(RND(0) * 6) + 1 : REM 0 = seed based on clock, 6 = FR$ length
-    RETURN
+    RETURN    
 
 Print_Machine:
     REM Print Machine Graphics
