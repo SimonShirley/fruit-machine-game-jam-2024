@@ -28,7 +28,7 @@ Initialise_Fruits:
     RETURN
 
 Set_Cursor_Position:
-    POKE 211,0 : POKE 214, 0 : SYS 58732 : REM Set cursor to x=0, y=0
+    POKE 211,XP% : POKE 214,YP% : SYS 58732 : REM Set cursor to x=0, y=0
     RETURN
 
 Get_Random:
@@ -40,10 +40,15 @@ Print_Machine:
     REM Print Machine Graphics
     PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{178}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{178}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
     PRINT "   {98}          {98}          {98}          {98}"
-    PRINT "   {98} " FR$(R1%,0) " {98} " FR$(R2%,0) " {98} " FR$(R3%,0) " {98}"
+    PRINT "   {98}          {98}          {98}          {98}"
     PRINT "   {98}          {98}          {98}          {98}"
     PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
     PRINT
+    RETURN
+
+Print_Reel_Line:
+    XP% = 0 : YP% = 3 : GOSUB Set_Cursor_Position
+    PRINT "   {98} " FR$(R1%,0) " {98} " FR$(R2%,0) " {98} " FR$(R3%,0) " {98}"
     RETURN
 
 Format_Credit_String:
@@ -124,9 +129,33 @@ Half_Win:
     SS$ = "HALF WIN - YOU WIN: $" + CV$ : REM WV$ = Win string
     RETURN
 
-Print_Status_Strip:
-    PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
+Print_Win_Strip_Text:
+    REM Print Win Strip Text
+    XP% = 0 : YP% = 8 : GOSUB Set_Cursor_Position
+    GOSUB Print_Status_Strip_Text
+    RETURN
+
+Print_Credit_Strip_Text:
+    REM Print Credit Strip Text
+    XP% = 0 : YP% = 12 : GOSUB Set_Cursor_Position
+    GOSUB Print_Status_Strip_Text
+    RETURN
+
+Print_Status_Strip_Text:
+    REM Print Status Strip Text
+Print_Status_Strip_Text_Blank:
+    IF SS$ <> "" THEN Print_Status_Strip_Text_Not_Blank:
+    FOR SI = 1 TO 40
+    PRINT " ";
+    NEXT SI
+    RETURN
+Print_Status_Strip_Text_Not_Blank:
     PRINT SPC(4); SPC((32 - LEN(SS$)) / 2); SS$
+    RETURN
+
+Print_Status_Strip_Border:
+    PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
+    PRINT
     PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
     PRINT
     RETURN
@@ -140,6 +169,14 @@ Initialise_Credits:
     IC = 100 : REM Initial Credits
     CR = IC : REM CR = Credits    
 
+Restart:
+    PRINT "{clr}{white}" : REM Clear screen and set the text to white
+    POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
+    GOSUB Print_Machine
+    GOSUB Print_Status_Strip_Border
+    GOSUB Print_Status_Strip_Border
+    GOSUB Print_Instructions : REM Print Instructions
+
 Start:
     GOSUB Get_Reels : REM Get Reels
 
@@ -148,17 +185,14 @@ Start:
     REM Check for Win
     IF R1% = R2% AND R2% = R3% THEN GOSUB Full_Win
     IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win
-
-    PRINT "{clr}"
-    GOSUB Print_Machine : REM Print Machine Graphics
-    GOSUB Print_Status_Strip
+    
+    GOSUB Print_Reel_Line
+    GOSUB Print_Win_Strip_Text
 
     CV = CR : REM Set credit value for internal processing
     GOSUB Format_Credit_String : REM Print Credits
     SS$ = "Credits: $" + CV$
-    GOSUB Print_Status_Strip
-
-    GOSUB Print_Instructions : REM Print Instructions
+    GOSUB Print_Credit_Strip_Text
 
 Get_User_Instruction:
     GOSUB Wait_Key : REM Get Keyboard Key
