@@ -150,7 +150,7 @@ Print_Status_Strip_Text_Blank:
     NEXT SI
     RETURN
 Print_Status_Strip_Text_Not_Blank:
-    PRINT SPC(4); SPC((32 - LEN(SS$)) / 2); SS$
+    PRINT SPC(4); SPC((32 - LEN(SS$)) / 2); SS$; SPC(36 - LEN(SS$))
     RETURN
 
 Print_Status_Strip_Border:
@@ -184,7 +184,7 @@ Start:
 
     REM Check for Win
     IF R1% = R2% AND R2% = R3% THEN GOSUB Full_Win
-    IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win
+    IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win  
     
     GOSUB Print_Reel_Line
     GOSUB Print_Win_Strip_Text
