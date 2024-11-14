@@ -142,15 +142,10 @@ Print_Credit_Strip_Text:
     RETURN
 
 Print_Status_Strip_Text:
-    REM Print Status Strip Text
-Print_Status_Strip_Text_Blank:
-    IF SS$ <> "" THEN Print_Status_Strip_Text_Not_Blank:
-    FOR SI = 1 TO 40
-    PRINT " ";
-    NEXT SI
-    RETURN
-Print_Status_Strip_Text_Not_Blank:
-    PRINT SPC(4); SPC((32 - LEN(SS$)) / 2); SS$; SPC(36 - LEN(SS$))
+    REM Print_Status_Strip_Text
+    PRINT "                                        ";
+    GOSUB Set_Cursor_Position : REM Reset cursor position
+    PRINT SPC(4); SPC(INT((32 - LEN(SS$)) / 2)); SS$;
     RETURN
 
 Print_Status_Strip_Border:
