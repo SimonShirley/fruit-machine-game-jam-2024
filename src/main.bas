@@ -4,25 +4,25 @@ Initialise_Fruits:
     REM Define Fruits array
     DIM FR$(6,1)
 
-    FR$(0,0) = " APPLE  "
+    FR$(0,0) = "APPLE"
     FR$(0,1) = "90" : REM APPLE WIN
 
-    FR$(1,0) = "  BAR   "
+    FR$(1,0) = "BAR"
     FR$(1,1) = "100" : REM BAR WIN
 
-    FR$(2,0) = " CHERRY "
+    FR$(2,0) = "CHERRY"
     FR$(2,1) = "30" : REM CHERRY WIN
 
-    FR$(3,0) = " SEVEN  "
+    FR$(3,0) = "SEVEN"
     FR$(3,1) = "80" : REM SEVEN WIN
 
-    FR$(4,0) = " LEMON  "
+    FR$(4,0) = "LEMON"
     FR$(4,1) = "60" : REM LEMON WIN
 
-    FR$(5,0) = " GRAPE  "
+    FR$(5,0) = "GRAPE"
     FR$(5,1) = "70" : REM GRAPE WIN
 
-    FR$(6,0) = "  PEAR  "
+    FR$(6,0) = "PEAR"
     FR$(6,1) = "50" : REM PEAR WIN
 
     RETURN
@@ -47,8 +47,26 @@ Print_Machine:
     RETURN
 
 Print_Reel_Line:
-    XP% = 0 : YP% = 7 : GOSUB Set_Cursor_Position
-    PRINT "   {98} " FR$(R1%,0) " {98} " FR$(R2%,0) " {98} " FR$(R3%,0) " {98}"
+    XP% = 5 : YP% = 7 : GOSUB Set_Cursor_Position
+    PRINT "        ";SPC(3);"        ";SPC(3);"        ";
+    GOSUB Set_Cursor_Position
+
+    LN% = 8
+    TT$ = ""
+
+    SS$ = FR$(R1%,0)
+    GOSUB Centre_Text    
+    TT$ = TT$ + SS$ + " {98} "
+
+    SS$ = FR$(R2%,0)
+    GOSUB Centre_Text
+    TT$ = TT$ + SS$ + " {98} "
+
+    SS$ = FR$(R3%,0)
+    GOSUB Centre_Text
+    TT$ = TT$ + SS$ + " {98}"
+    
+    PRINT TT$;
     RETURN
 
 Format_Credit_String:
@@ -73,6 +91,28 @@ Format_Credit_String__Set_Trailing_Zero:
     CV$ = CV$ + "0"
 
 Format_Credit_String__Continue:    
+    RETURN
+
+Centre_Text:
+    REM Calculate padding spaces for centring
+    REM LN% = Available Space Length
+
+    IF LEN(SS$) => LN% THEN Centre_Text__Return
+
+    J = INT((LN% - LEN(SS$)) / 2)
+    J = J - (J - INT(J/2) * 2) : REM Subtract 1 if J is odd
+
+    FOR I = 1 TO J : REM 1 TO Number of Spaces Required
+    SS$ = " " + SS$
+    NEXT I
+
+    IF LEN(SS$) => LN% THEN Centre_Text__Return
+
+    FOR I = LEN(SS$) TO LN% - 1
+    SS$ = SS$ + " "
+    NEXT I
+
+Centre_Text__Return:
     RETURN
 
 Print_Instructions:
@@ -136,13 +176,8 @@ Print_Win_Strip_Text:
     GOTO Print_Win_Strip_Text__Continue
 
 Print_Win_Strip_Text__Centre_Text:
-    REM Calculate padding spaces for centring
-    J = INT((30 - LEN(SS$)) / 2)
-    J = J + (J - INT(J/2) * 2) : REM Add 1 if J is odd
-
-    FOR I = 1 TO J : REM 1 TO Number of Spaces Required
-    SS$ = " " + SS$
-    NEXT I
+    LN% = 30
+    GOSUB Centre_Text
 
 Print_Win_Strip_Text__Continue:
     XP% = 5 : YP% = 12 : GOSUB Set_Cursor_Position
@@ -209,14 +244,14 @@ Restart:
 
 Start:
     GOSUB Get_Reels : REM Get Reels
+    GOSUB Print_Reel_Line
 
     SS$ = ""
 
     REM Check for Win
     IF R1% = R2% AND R2% = R3% THEN GOSUB Full_Win
-    IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win  
+    IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win
     
-    GOSUB Print_Reel_Line
     GOSUB Print_Win_Strip_Text    
     GOSUB Print_Credit_Strip_Text
 
