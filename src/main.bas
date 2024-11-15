@@ -257,9 +257,11 @@ Restart:
     GOSUB Print_Machine
     GOSUB Print_Status_Strip_Border
     GOSUB Print_Prizes_Text
-    GOSUB Print_Instructions : REM Print Instructions    
+    GOSUB Print_Instructions : REM Print Instructions
+    GOSUB Print_Credit_Strip_Text
+    GOTO Get_User_Instruction
 
-Start:
+Game_Loop:
     GOSUB Get_Reels : REM Get Reels
     GOSUB Print_Credit_Strip_Text
     GOSUB Print_Reel_Line
@@ -289,4 +291,4 @@ Play_Next_Credit:
     REM Deduct credit and play again
     IF CR <= 0 THEN END
     CR = CR - 10
-    GOTO Start
+    GOTO Game_Loop
