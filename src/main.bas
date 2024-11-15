@@ -276,6 +276,10 @@ Game_Loop:
     GOSUB Print_Credit_Strip_Text
 
     IF CR > 0 THEN Get_User_Instruction
+
+    SS$ = "GAME OVER"
+    GOSUB Print_Win_Strip_Text
+
     XP% = 0 : YP% = 20 : GOSUB Set_Cursor_Position
     GOSUB Print_Instructions
 
