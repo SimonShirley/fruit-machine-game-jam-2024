@@ -140,7 +140,7 @@ Print_Win_Strip_Text__Centre_Text:
     J = INT((30 - LEN(SS$)) / 2)
     J = J + (J - INT(J/2) * 2) : REM Add 1 if J is odd
 
-    FOR I = 1 TO J : REM 30 - 1
+    FOR I = 1 TO J : REM 1 TO Number of Spaces Required
     SS$ = " " + SS$
     NEXT I
 
@@ -164,8 +164,8 @@ Print_Credit_Strip_Text:
     RETURN
 
 Print_Strip_Text:
-    REM Print_Credit_Strip_Text
-    TT$ = ""
+    REM Print_Strip_Text
+    TT$ = "" : REM String to blank previous screen characters
     FOR I = 1 TO LEN(SS$)
         TT$ = TT$ + " "
     NEXT I
