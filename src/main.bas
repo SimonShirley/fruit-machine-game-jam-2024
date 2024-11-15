@@ -47,7 +47,7 @@ Print_Machine:
     RETURN
 
 Print_Reel_Line:
-    XP% = 0 : YP% = 3 : GOSUB Set_Cursor_Position
+    XP% = 0 : YP% = 7 : GOSUB Set_Cursor_Position
     PRINT "   {98} " FR$(R1%,0) " {98} " FR$(R2%,0) " {98} " FR$(R3%,0) " {98}"
     RETURN
 
@@ -131,21 +131,56 @@ Half_Win:
 
 Print_Win_Strip_Text:
     REM Print Win Strip Text
-    XP% = 0 : YP% = 8 : GOSUB Set_Cursor_Position
-    GOSUB Print_Status_Strip_Text
+    IF LEN(SS$) > 0 THEN Print_Win_Strip_Text__Centre_Text
+    SS$ = "                              "
+    GOTO Print_Win_Strip_Text__Continue
+
+Print_Win_Strip_Text__Centre_Text:
+    REM Calculate padding spaces for centring
+    J = INT((30 - LEN(SS$)) / 2)
+    J = J + (J - INT(J/2) * 2) : REM Add 1 if J is odd
+
+    FOR I = 1 TO J : REM 30 - 1
+    SS$ = " " + SS$
+    NEXT I
+
+Print_Win_Strip_Text__Continue:
+    XP% = 5 : YP% = 12 : GOSUB Set_Cursor_Position
+    GOSUB Print_Strip_Text
     RETURN
 
 Print_Credit_Strip_Text:
     REM Print Credit Strip Text
-    XP% = 0 : YP% = 12 : GOSUB Set_Cursor_Position
-    GOSUB Print_Status_Strip_Text
+    SS$ = ""
+    CV = CR : REM Set credit value for internal processing
+    GOSUB Format_Credit_String : REM Print Credits
+    FOR I = LEN(CV$) TO 5 : REM Max length 6 - 1
+    SS$ = " " + SS$
+    NEXT I
+    SS$ = SS$ + "{92}" + CV$
+
+    XP% = 28 : YP% = 2 : GOSUB Set_Cursor_Position
+    GOSUB Print_Strip_Text
     RETURN
 
-Print_Status_Strip_Text:
-    REM Print_Status_Strip_Text
-    PRINT "                                        ";
+Print_Strip_Text:
+    REM Print_Credit_Strip_Text
+    TT$ = ""
+    FOR I = 1 TO LEN(SS$)
+        TT$ = TT$ + " "
+    NEXT I
+
+    PRINT TT$;
+
     GOSUB Set_Cursor_Position : REM Reset cursor position
-    PRINT SPC(4); SPC(INT((32 - LEN(SS$)) / 2)); SS$;
+    PRINT SS$;
+    RETURN
+
+Print_Bet_Credit_Strip_Border:
+    PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174} {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
+    PRINT "     BET: {92}0.10     Credit:"
+    PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189} {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
+    PRINT
     RETURN
 
 Print_Status_Strip_Border:
@@ -167,8 +202,8 @@ Initialise_Credits:
 Restart:
     PRINT "{clr}{white}" : REM Clear screen and set the text to white
     POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
+    GOSUB Print_Bet_Credit_Strip_Border
     GOSUB Print_Machine
-    GOSUB Print_Status_Strip_Border
     GOSUB Print_Status_Strip_Border
     GOSUB Print_Instructions : REM Print Instructions
 
@@ -182,11 +217,7 @@ Start:
     IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win  
     
     GOSUB Print_Reel_Line
-    GOSUB Print_Win_Strip_Text
-
-    CV = CR : REM Set credit value for internal processing
-    GOSUB Format_Credit_String : REM Print Credits
-    SS$ = "Credits: {92}" + CV$
+    GOSUB Print_Win_Strip_Text    
     GOSUB Print_Credit_Strip_Text
 
     IF CR > 0 THEN Get_User_Instruction
