@@ -4,26 +4,26 @@ Initialise_Fruits:
     REM Define Fruits array
     DIM FR$(6,1)
 
-    FR$(0,0) = "APPLE"
-    FR$(0,1) = "90" : REM APPLE WIN
+    FR$(0,0) = "CHERRY"
+    FR$(0,1) = "30" : REM CHERRY WIN
 
-    FR$(1,0) = "BAR"
-    FR$(1,1) = "100" : REM BAR WIN
+    FR$(1,0) = "PEAR"
+    FR$(1,1) = "50" : REM PEAR WIN
 
-    FR$(2,0) = "CHERRY"
-    FR$(2,1) = "30" : REM CHERRY WIN
+    FR$(2,0) = "LEMON"
+    FR$(2,1) = "60" : REM LEMON WIN
 
-    FR$(3,0) = "SEVEN"
-    FR$(3,1) = "80" : REM SEVEN WIN
+    FR$(3,0) = "GRAPE"
+    FR$(3,1) = "70" : REM GRAPE WIN
 
-    FR$(4,0) = "LEMON"
-    FR$(4,1) = "60" : REM LEMON WIN
+    FR$(4,0) = "APPLE"
+    FR$(4,1) = "80" : REM SEVEN WIN
 
-    FR$(5,0) = "GRAPE"
-    FR$(5,1) = "70" : REM GRAPE WIN
+    FR$(5,0) = "SEVEN"
+    FR$(5,1) = "90" : REM APPLE WIN
 
-    FR$(6,0) = "PEAR"
-    FR$(6,1) = "50" : REM PEAR WIN
+    FR$(6,0) = "BAR"
+    FR$(6,1) = "100" : REM BAR WIN
 
     RETURN
 
@@ -125,6 +125,22 @@ Print_Instructions__In_Credit:
 
 Print_Instructions__Continue:
     PRINT "[Q] Quit"
+    PRINT
+    RETURN
+
+Print_Prizes_Text:
+    PRINT "WIN WIN -",":  2X",
+    PRINT FR$(0,0),": " + STR$(VAL(FR$(0,1)) / 10) + "x"
+
+    FOR I = 1 TO 6 : REM FRUIT SIZE
+    PRINT FR$(I,0),": " + STR$(VAL(FR$(I,1)) / 10) + "x",
+    I = I + 1
+    IF I > 6 THEN Print_Prizes_Text__Next : REM Jump out if array size is odd
+    PRINT FR$(I,0),": " + STR$(VAL(FR$(I,1)) / 10) + "x"
+
+Print_Prizes_Text__Next:
+    NEXT I
+
     PRINT
     RETURN
 
@@ -240,7 +256,8 @@ Restart:
     GOSUB Print_Bet_Credit_Strip_Border
     GOSUB Print_Machine
     GOSUB Print_Status_Strip_Border
-    GOSUB Print_Instructions : REM Print Instructions
+    GOSUB Print_Prizes_Text
+    GOSUB Print_Instructions : REM Print Instructions    
 
 Start:
     GOSUB Get_Reels : REM Get Reels
@@ -256,7 +273,7 @@ Start:
     GOSUB Print_Credit_Strip_Text
 
     IF CR > 0 THEN Get_User_Instruction
-    XP% = 0 : YP% = 15 : GOSUB Set_Cursor_Position
+    XP% = 0 : YP% = 20 : GOSUB Set_Cursor_Position
     GOSUB Print_Instructions
 
 Get_User_Instruction:
