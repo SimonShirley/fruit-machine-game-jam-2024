@@ -261,6 +261,7 @@ Restart:
 
 Start:
     GOSUB Get_Reels : REM Get Reels
+    GOSUB Print_Credit_Strip_Text
     GOSUB Print_Reel_Line
 
     SS$ = ""
