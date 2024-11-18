@@ -118,14 +118,17 @@ Centre_Text__Return:
 Print_Instructions:
     REM Print Instructions
     IF CR > 0 THEN Print_Instructions__In_Credit
-    PRINT "[P] PLAY AGAIN"
-    GOTO Print_Instructions__Continue
-Print_Instructions__In_Credit:
-    PRINT "[S] Spin Reels"
+    PRINT "[ P ] PLAY AGAIN                       "
+    PRINT "[ Q ] QUIT                             "
+    PRINT "                                       "
+    PRINT "                                       "
+    RETURN
 
-Print_Instructions__Continue:
-    PRINT "[Q] Quit"
-    PRINT
+Print_Instructions__In_Credit:
+    PRINT "[ S ] Spin Reels                       "
+    PRINT "[+/-] INCREASE / DECREASE BET          "
+    PRINT "[ Q ] Quit                             "
+    PRINT "                                       "
     RETURN
 
 Print_Prizes_Text:
@@ -193,6 +196,16 @@ Print_Win_Strip_Text__Continue:
     GOSUB Print_Strip_Text
     RETURN
 
+Print_Bet_Strip_Text:
+    REM Print Credit Strip Text
+    CV = BT% : REM Set credit value for internal processing
+    GOSUB Format_Credit_String : REM Print Credits
+    SS$ = "{92}" + CV$
+
+    XP% = 10 : YP% = 2 : GOSUB Set_Cursor_Position
+    GOSUB Print_Strip_Text
+    RETURN
+
 Print_Credit_Strip_Text:
     REM Print Credit Strip Text
     SS$ = ""
@@ -222,7 +235,7 @@ Print_Strip_Text:
 
 Print_Bet_Credit_Strip_Border:
     PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174} {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
-    PRINT "     BET: {92}0.10     Credit:"
+    PRINT "     BET:           Credit:"
     PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189} {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
     PRINT
     RETURN
@@ -251,6 +264,7 @@ Restart:
     GOSUB Print_Status_Strip_Border
     GOSUB Print_Prizes_Text
     GOSUB Print_Instructions : REM Print Instructions
+    GOSUB Print_Bet_Strip_Text : REM Print Bet Strip Text
     GOSUB Print_Credit_Strip_Text
     GOTO Get_User_Instruction
 
@@ -268,6 +282,11 @@ Game_Loop:
     GOSUB Print_Win_Strip_Text    
     GOSUB Print_Credit_Strip_Text
 
+    IF BT% <= CR THEN Game_Loop__Continue
+    BT% = INT(CR) : REM Reduce bet to remaining credit
+    GOSUB Print_Bet_Strip_Text
+
+Game_Loop__Continue:
     IF CR > 0 THEN Get_User_Instruction
 
     SS$ = "GAME OVER"
@@ -281,18 +300,35 @@ Get_User_Instruction:
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
     # TODO: Need to include a way to increase / decrease bet
+    IF CR > 0 AND (K$ = "-" OR K$ = "_") THEN Decrease_Bet
+    IF CR > 0 AND (K$ = "+" OR K$ = "=") THEN Increase_Bet
     IF CR > 0 AND K$ = "S" THEN Play_Next_Credit
     IF CR <= 0 AND K$ = "P" THEN Initialise_Credits
+    GOTO Get_User_Instruction
+
+Decrease_Bet:
+    IF BT% = 10 THEN Increase_Decrease_Bet__Continue
+    BT% = BT% - 10
+    GOTO Increase_Decrease_Bet__Continue
+
+Increase_Bet:
+    IF BT% = CR OR BT% = 100 THEN Increase_Decrease_Bet__Continue
+    BT% = BT% + 10
+
+Increase_Decrease_Bet__Continue:
+    GOSUB Print_Bet_Strip_Text
     GOTO Get_User_Instruction
 
 Play_Next_Credit:
     REM Deduct credit and play again
     IF CR >= BT% THEN Play_Next_Credit__Deduct_Bet
     CR = 0
-    # TODO: Need to update displayed bet information
-    GOTO Game_Loop
+
+    GOTO Play_Next_Credit__Continue
 
 Play_Next_Credit__Deduct_Bet:
     CR = CR - BT%
-    # TODO: Need to update displayed bet information
+
+Play_Next_Credit__Continue:
+    GOSUB Print_Bet_Strip_Text
     GOTO Game_Loop
