@@ -132,14 +132,33 @@ Print_Instructions__In_Credit:
     RETURN
 
 Print_Prizes_Text:
-    PRINT "WIN WIN -",": 2X",
-    PRINT FR$(0,0),": " + FR$(0,1) + "X"
+    SS$ = "    WIN WIN - : 2X  " + FR$(0,0)
+    
+    FOR J = LEN(FR$(0,0)) TO 9
+    SS$ = SS$ + " "
+    NEXT J
+
+    PRINT SS$ + ": " + FR$(0,1) + "X"
 
     FOR I = 1 TO 6 : REM FRUIT SIZE
-    PRINT FR$(I,0),": " + FR$(I,1) + "X",
+    SS$ = "    " + FR$(I,0)
+
+    FOR J = LEN(FR$(I,0)) TO 9
+    SS$ = SS$ + " "
+    NEXT J
+    
+    SS$ = SS$ + ": " + FR$(I,1) + "X  "
+
     I = I + 1
     IF I > 6 THEN Print_Prizes_Text__Next : REM Jump out if array size is odd
-    PRINT FR$(I,0),": " + FR$(I,1) + "X"
+
+    SS$ = SS$ + FR$(I,0)
+    
+    FOR J = LEN(FR$(I,0)) TO 9
+    SS$ = SS$ + " "
+    NEXT J
+
+    PRINT SS$ + ": " + FR$(I,1) + "X"
 
 Print_Prizes_Text__Next:
     NEXT I
@@ -258,7 +277,7 @@ Initialise_Credits:
 
 Restart:
     PRINT "{clr}{white}" : REM Clear screen and set the text to white
-    POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
+    POKE 53280,0 : REM POKE 53281,0 : REM Set border and background to black
     GOSUB Print_Bet_Credit_Strip_Border
     GOSUB Print_Machine
     GOSUB Print_Status_Strip_Border
