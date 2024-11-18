@@ -277,7 +277,7 @@ Initialise_Credits:
 
 Restart:
     PRINT "{clr}{white}" : REM Clear screen and set the text to white
-    POKE 53280,0 : REM POKE 53281,0 : REM Set border and background to black
+    POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
     GOSUB Print_Bet_Credit_Strip_Border
     GOSUB Print_Machine
     GOSUB Print_Status_Strip_Border
