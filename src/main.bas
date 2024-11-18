@@ -5,30 +5,30 @@ Initialise_Fruits:
     DIM FR$(6,1)
 
     FR$(0,0) = "CHERRY"
-    FR$(0,1) = "30" : REM CHERRY WIN
+    FR$(0,1) = "3" : REM CHERRY WIN
 
     FR$(1,0) = "PEAR"
-    FR$(1,1) = "50" : REM PEAR WIN
+    FR$(1,1) = "5" : REM PEAR WIN
 
     FR$(2,0) = "LEMON"
-    FR$(2,1) = "60" : REM LEMON WIN
+    FR$(2,1) = "6" : REM LEMON WIN
 
     FR$(3,0) = "GRAPE"
-    FR$(3,1) = "70" : REM GRAPE WIN
+    FR$(3,1) = "7" : REM GRAPE WIN
 
     FR$(4,0) = "APPLE"
-    FR$(4,1) = "80" : REM SEVEN WIN
+    FR$(4,1) = "8" : REM SEVEN WIN
 
     FR$(5,0) = "SEVEN"
-    FR$(5,1) = "90" : REM APPLE WIN
+    FR$(5,1) = "9" : REM APPLE WIN
 
     FR$(6,0) = "BAR"
-    FR$(6,1) = "100" : REM BAR WIN
+    FR$(6,1) = "10" : REM BAR WIN
 
     RETURN
 
 Set_Cursor_Position:
-    POKE 211,XP% : POKE 214,YP% : SYS 58732 : REM Set cursor to x=0, y=0
+    POKE 211,XP% : POKE 214,YP% : SYS 58732 : REM Set cursor to x=XP%, y=YP%
     RETURN
 
 Get_Random:
@@ -129,14 +129,14 @@ Print_Instructions__Continue:
     RETURN
 
 Print_Prizes_Text:
-    PRINT "WIN WIN -",":  2X",
-    PRINT FR$(0,0),": " + STR$(VAL(FR$(0,1)) / 10) + "x"
+    PRINT "WIN WIN -",": 2X",
+    PRINT FR$(0,0),": " + FR$(0,1) + "X"
 
     FOR I = 1 TO 6 : REM FRUIT SIZE
-    PRINT FR$(I,0),": " + STR$(VAL(FR$(I,1)) / 10) + "x",
+    PRINT FR$(I,0),": " + FR$(I,1) + "X",
     I = I + 1
     IF I > 6 THEN Print_Prizes_Text__Next : REM Jump out if array size is odd
-    PRINT FR$(I,0),": " + STR$(VAL(FR$(I,1)) / 10) + "x"
+    PRINT FR$(I,0),": " + FR$(I,1) + "X"
 
 Print_Prizes_Text__Next:
     NEXT I
@@ -158,28 +158,21 @@ Wait_Key:
 
 Full_Win:
     REM Full Win (All 3 matching)
-    CR = CR + VAL(FR$(R1%,1))
+    WI = (VAL(FR$(R1%,1)) * BT%) : REM WI = Winning amount
+    CR = CR + WI
 
-    SS$ = "" : REM SS$ = Status Strip string
-    REM Remove Spaces from Reel string
-    FOR I = 1 TO 8
-    SC$ = MID$(FR$(R1%,0), I, 1) : REM Test character
-    IF SC$ = " " THEN Full_Win__Next
-    SS$ = SS$ + SC$
-Full_Win__Next:
-    NEXT I
-
-    CV = VAL(FR$(R1%,1)) : REM Set credit value for internal processing
+    CV = WI : REM Set credit value for internal processing
     GOSUB Format_Credit_String : REM Print Credits
 
-    SS$ = SS$ + " WIN - YOU WIN: {92}" + CV$
+    SS$ = FR$(R1%,0) + " WIN - YOU WIN: {92}" + CV$
     RETURN
 
 Half_Win:
     REM Half Win (Only first and second matching)
-    CR = CR + HW
+    WI = BT% * 2 : REM WI = Winning amount
+    CR = CR + WI
     
-    CV = HW : REM Set credit value for internal processing
+    CV = WI : REM Set credit value for internal processing
     GOSUB Format_Credit_String : REM Print Credits
 
     SS$ = "HALF WIN - YOU WIN: {92}" + CV$ : REM WV$ = Win string
@@ -244,11 +237,11 @@ Print_Status_Strip_Border:
 Initialise_Program:
     REM Initialise Program
     GOSUB Initialise_Fruits
-    HW = 20 : REM HW = Half Win Credits
 
 Initialise_Credits:
-    IC = 100 : REM Initial Credits
-    CR = IC : REM CR = Credits    
+    BT% = 10 : REM Initial Bet : BT% stores bet count
+    IC = 100 : REM IC = Initial Credits
+    CR = IC : REM CR = Credits
 
 Restart:
     PRINT "{clr}{white}" : REM Clear screen and set the text to white
@@ -287,12 +280,19 @@ Get_User_Instruction:
     GOSUB Wait_Key : REM Get Keyboard Key
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
+    # TODO: Need to include a way to increase / decrease bet
     IF CR > 0 AND K$ = "S" THEN Play_Next_Credit
     IF CR <= 0 AND K$ = "P" THEN Initialise_Credits
     GOTO Get_User_Instruction
 
 Play_Next_Credit:
     REM Deduct credit and play again
-    IF CR <= 0 THEN END
-    CR = CR - 10
+    IF CR >= BT% THEN Play_Next_Credit__Deduct_Bet
+    CR = 0
+    # TODO: Need to update displayed bet information
+    GOTO Game_Loop
+
+Play_Next_Credit__Deduct_Bet:
+    CR = CR - BT%
+    # TODO: Need to update displayed bet information
     GOTO Game_Loop
