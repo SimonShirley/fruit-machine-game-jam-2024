@@ -28,7 +28,8 @@ Initialise_Fruits:
     RETURN
 
 Set_Cursor_Position:
-    POKE 211,XP% : POKE 214,YP% : SYS 58732 : REM Set cursor to x=XP%, y=YP%
+    REM Set Cursor Position to X=XP%, Y=YP%
+    POKE 211,XP% : POKE 214,YP% : SYS 58732
     RETURN
 
 Get_Random:
@@ -38,8 +39,9 @@ Get_Random:
     RETURN
 
 Randomise_Seed:
+    REM Randomise Seed
     RD% = INT(RND(-TI)) + 1
-    RS% = 0 : REM Seed doesn't need to be re-generated
+    RS% = 0 : REM Set Flag so that the seed doesn't get re-generated this play
     RETURN
 
 Print_Machine:
@@ -53,24 +55,25 @@ Print_Machine:
     RETURN
 
 Print_Reel_Line:
+    REM Print Reel Line
     XP% = 5 : YP% = 7 : GOSUB Set_Cursor_Position
     PRINT "        ";SPC(3);"        ";SPC(3);"        ";
     GOSUB Set_Cursor_Position
 
-    LN% = 8
-    TT$ = ""
+    LN% = 8 : REM LN% = Reel Width in Characters
+    TT$ = "" : REM Reel Line Text String for printing
 
     SS$ = FR$(R1%,0)
     GOSUB Centre_Text    
-    TT$ = TT$ + SS$ + " {98} "
+    TT$ = TT$ + SS$ + " {98} " : REM Add dividing character to text string
 
     SS$ = FR$(R2%,0)
     GOSUB Centre_Text
-    TT$ = TT$ + SS$ + " {98} "
+    TT$ = TT$ + SS$ + " {98} " : REM Add dividing character to text string
 
     SS$ = FR$(R3%,0)
     GOSUB Centre_Text
-    TT$ = TT$ + SS$ + " {98}"
+    TT$ = TT$ + SS$ + " {98}" : REM Add dividing character to text string
     
     PRINT TT$;
     RETURN
@@ -79,7 +82,7 @@ Format_Credit_String:
     REM Print Credits
     REM CV is the passed in value for processing
     
-    CF = CV / 100 : REM Convert to float and turn cents into dollars
+    CF = CV / 100 : REM Convert to float and turn pence into pounds
     CV$ = MID$(STR$(CF),2)
 
     IF CF = INT(CF) THEN Format_Credit_String__Set_Pence_DoubleZero
@@ -87,42 +90,45 @@ Format_Credit_String:
     GOTO Format_Credit_String__Set_Trailing_Zero
 
 Format_Credit_String__Set_Pence_DoubleZero:
+    REM Format Credit String - Set Pence Double Zero
     CV$ = CV$ + ".0"
     GOTO Format_Credit_String__Set_Trailing_Zero
 
 Format_Credit_String__Set_Leading_Zero:
+    REM Format Credit String - Set Pence Leading Zero
     CV$ = "0" + CV$
 
 Format_Credit_String__Set_Trailing_Zero:
+    REM Format Credit String - Set Pence Trailing Zero
     CV$ = CV$ + "0"
 
-Format_Credit_String__Continue:    
     RETURN
 
 Centre_Text:
     REM Calculate padding spaces for centring
     REM LN% = Available Space Length
 
-    IF LEN(SS$) => LN% THEN Centre_Text__Return
+    REM Check string length and return if too long
+    IF LEN(SS$) => LN% THEN RETURN
 
     J = INT((LN% - LEN(SS$)) / 2)
-    J = J - (J - INT(J/2) * 2) : REM Subtract 1 if J is odd
+    J = J - (J - INT(J/2) * 2) : REM Subtract 1 if J is odd - MOD Function
 
     FOR I = 1 TO J : REM 1 TO Number of Spaces Required
     SS$ = " " + SS$
     NEXT I
 
-    IF LEN(SS$) => LN% THEN Centre_Text__Return
+    REM Check string length and return if too long
+    IF LEN(SS$) => LN% THEN RETURN
 
     FOR I = LEN(SS$) TO LN% - 1
     SS$ = SS$ + " "
     NEXT I
 
-Centre_Text__Return:
     RETURN
 
 Print_Instructions:
-    REM Print Instructions
+    REM Print Instructions with no credits
     IF CR > 0 THEN Print_Instructions__In_Credit
     PRINT "[ P ] PLAY AGAIN                       "
     PRINT "[ Q ] QUIT                             "
@@ -131,6 +137,7 @@ Print_Instructions:
     RETURN
 
 Print_Instructions__In_Credit:
+    REM Print Instructions when in credit
     PRINT "[ S ] Spin Reels                       "
     PRINT "[+/-] INCREASE / DECREASE BET          "
     PRINT "[ Q ] Quit                             "
@@ -138,6 +145,7 @@ Print_Instructions__In_Credit:
     RETURN
 
 Print_Prizes_Text:
+    REM Print Prizes Text - Tab not available because of column width
     SS$ = "    WIN WIN - : 2X  " + FR$(0,0)
     
     FOR J = LEN(FR$(0,0)) TO 9
@@ -259,6 +267,7 @@ Print_Strip_Text:
     RETURN
 
 Print_Bet_Credit_Strip_Border:
+    REM Print Bet and Credit Strip Borders
     PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174} {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
     PRINT "     BET:           Credit:"
     PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189} {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
@@ -266,6 +275,7 @@ Print_Bet_Credit_Strip_Border:
     RETURN
 
 Print_Status_Strip_Border:
+    REM Print Status Strip Borders
     PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
     PRINT
     PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
@@ -277,6 +287,7 @@ Initialise_Program:
     GOSUB Initialise_Fruits
 
 Initialise_Credits:
+    REM Initialise Credits
     BT% = 10 : REM Initial Bet : BT% stores bet count
     IC = 100 : REM IC = Initial Credits
     CR = IC : REM CR = Credits
@@ -285,19 +296,19 @@ Restart:
     PRINT "{clr}{white}" : REM Clear screen and set the text to white
     POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
     RS% = 1 : REM RS = Flag needed to randomise the seed
-    GOSUB Print_Bet_Credit_Strip_Border
-    GOSUB Print_Machine
-    GOSUB Print_Status_Strip_Border
-    GOSUB Print_Prizes_Text
+    GOSUB Print_Bet_Credit_Strip_Border : REM Print Bet Credit Strip Border
+    GOSUB Print_Machine : REM Print Machine
+    GOSUB Print_Status_Strip_Border : REM Print Status Strip Border
+    GOSUB Print_Prizes_Text : REM Print Prize Information
     GOSUB Print_Instructions : REM Print Instructions
     GOSUB Print_Bet_Strip_Text : REM Print Bet Strip Text
-    GOSUB Print_Credit_Strip_Text
-    GOTO Get_User_Instruction
+    GOSUB Print_Credit_Strip_Text : REM Print Credit Strip Text
+    GOTO Get_User_Instruction : REM Get User Input
 
 Game_Loop:
     GOSUB Get_Reels : REM Get Reels
-    GOSUB Print_Credit_Strip_Text
-    GOSUB Print_Reel_Line
+    GOSUB Print_Credit_Strip_Text : REM Print Credit Strip Text
+    GOSUB Print_Reel_Line : REM Print Reel Line Text
 
     SS$ = ""
 
@@ -305,9 +316,10 @@ Game_Loop:
     IF R1% = R2% AND R2% = R3% THEN GOSUB Full_Win
     IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win
     
-    GOSUB Print_Win_Strip_Text    
-    GOSUB Print_Credit_Strip_Text
+    GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
+    GOSUB Print_Credit_Strip_Text : REM Print Credit Strip Text
 
+    REM Check if there is enough credit to bet
     IF BT% <= CR THEN Game_Loop__Continue
     BT% = INT(CR) : REM Reduce bet to remaining credit
     GOSUB Print_Bet_Strip_Text
@@ -316,7 +328,7 @@ Game_Loop__Continue:
     IF CR > 0 THEN Get_User_Instruction
 
     SS$ = "GAME OVER"
-    GOSUB Print_Win_Strip_Text
+    GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
 
     XP% = 0 : YP% = 20 : GOSUB Set_Cursor_Position
     GOSUB Print_Instructions
@@ -325,19 +337,20 @@ Get_User_Instruction:
     GOSUB Wait_Key : REM Get Keyboard Key
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
-    # TODO: Need to include a way to increase / decrease bet
-    IF CR > 0 AND (K$ = "-" OR K$ = "_") THEN Decrease_Bet
-    IF CR > 0 AND (K$ = "+" OR K$ = "=") THEN Increase_Bet
-    IF CR > 0 AND K$ = "S" THEN Play_Next_Credit
-    IF CR <= 0 AND K$ = "P" THEN Initialise_Credits
-    GOTO Get_User_Instruction
+    IF CR > 0 AND (K$ = "-" OR K$ = "_") THEN Decrease_Bet : REM Decrease Bet
+    IF CR > 0 AND (K$ = "+" OR K$ = "=") THEN Increase_Bet : REM Increase Bet
+    IF CR > 0 AND K$ = "S" THEN Play_Next_Credit : REM Play Next Credit
+    IF CR <= 0 AND K$ = "P" THEN Initialise_Credits : REM Initialise Credits
+    GOTO Get_User_Instruction : REM Get Keyboard Key
 
 Decrease_Bet:
+    REM Decrease Bet
     IF BT% = 10 THEN Increase_Decrease_Bet__Continue
     BT% = BT% - 10
     GOTO Increase_Decrease_Bet__Continue
 
 Increase_Bet:
+    REM Increase Bet
     IF BT% = CR OR BT% = 100 THEN Increase_Decrease_Bet__Continue
     BT% = BT% + 10
 
