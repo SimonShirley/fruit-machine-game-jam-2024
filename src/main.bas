@@ -33,8 +33,14 @@ Set_Cursor_Position:
 
 Get_Random:
     REM Get random number
-    RD% = INT(RND(0) * 6) + 1 : REM 0 = seed based on clock, 6 = FR$ length
-    RETURN    
+    IF RS% = 1 THEN GOSUB Randomise_Seed
+    RD% = INT(RND(1) * 6) + 1 : REM 0 = seed based on clock, 6 = FR$ length
+    RETURN
+
+Randomise_Seed:
+    RD% = INT(RND(-TI)) + 1
+    RS% = 0 : REM Seed doesn't need to be re-generated
+    RETURN
 
 Print_Machine:
     REM Print Machine Graphics
@@ -278,6 +284,7 @@ Initialise_Credits:
 Restart:
     PRINT "{clr}{white}" : REM Clear screen and set the text to white
     POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
+    RS% = 1 : REM RS = Flag needed to randomise the seed
     GOSUB Print_Bet_Credit_Strip_Border
     GOSUB Print_Machine
     GOSUB Print_Status_Strip_Border
