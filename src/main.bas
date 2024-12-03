@@ -289,7 +289,9 @@ Initialise_Sound:
     FOR I = SR TO SR + 24 : POKE I,0 : NEXT : REM Reset SID
     POKE SR + 5,9 : POKE SR + 6,0 : REM SET ADSR ENVELOPE
     POKE SR + 24,15 : REM SET MAX VOLUME
+    RETURN
 
+Initialise_Notes:
     REM Notes Array
     DIM NS%(1,1)
     REM C-Sharp (5)
@@ -339,7 +341,7 @@ Play_Full_Win_Sound:
 Initialise_Program:
     REM Initialise Program
     GOSUB Initialise_Fruits
-    GOSUB Initialise_Sound: REM Initialise Sound
+    GOSUB Initialise_Notes: REM Initialise Notes
 
 Initialise_Credits:
     REM Initialise Credits
@@ -351,6 +353,7 @@ Restart:
     PRINT "{clr}{white}" : REM Clear screen and set the text to white
     POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
     RS% = 1 : REM RS = Flag needed to randomise the seed
+    GOSUB Initialise_Sound: REM Initialise Sound
     GOSUB Print_Bet_Credit_Strip_Border : REM Print Bet Credit Strip Border
     GOSUB Print_Machine : REM Print Machine
     GOSUB Print_Status_Strip_Border : REM Print Status Strip Border
