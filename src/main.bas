@@ -201,6 +201,7 @@ Full_Win:
     GOSUB Format_Credit_String : REM Print Credits
 
     SS$ = FR$(R1%,0) + " WIN - YOU WIN: {92}" + CV$
+    GOSUB Play_Full_Win_Sound : REM Play Full Win Sound
     RETURN
 
 Half_Win:
@@ -212,6 +213,7 @@ Half_Win:
     GOSUB Format_Credit_String : REM Print Credits
 
     SS$ = "HALF WIN - YOU WIN: {92}" + CV$ : REM WV$ = Win string
+    GOSUB Play_Half_Win_Sound : REM Play Half Win Sound
     RETURN
 
 Print_Win_Strip_Text:
@@ -282,9 +284,62 @@ Print_Status_Strip_Border:
     PRINT
     RETURN
 
+Initialise_Sound:
+    SR = 54272 : REM SID BASE ADDRESS
+    FOR I = SR TO SR + 24 : POKE I,0 : NEXT : REM Reset SID
+    POKE SR + 5,9 : POKE SR + 6,0 : REM SET ADSR ENVELOPE
+    POKE SR + 24,15 : REM SET MAX VOLUME
+
+    REM Notes Array
+    DIM NS%(1,1)
+    REM C-Sharp (5)
+    NS%(0,0) = 35
+    NS%(0,1) = 134
+
+    REM F-Sharp (5)
+    NS%(1,0) = 47
+    NS%(1,1) = 107
+    RETURN
+
+Play_Sound:
+    POKE SR + 4, 33 : REM GATE(1) + SAWTOOTH(32)
+    FOR I = 1 TO DL : NEXT : REM KEEP THE GATE ON FOR SOUND
+    POKE SR + 4, 32 : REM GATE(0) + SAWTOOTH(32) : TURN SOUND OFF
+    RETURN
+
+Play_Half_Win_Sound:
+    DL = 125 : REM Note Delay
+
+    POKE SR + 1, NS%(0,0) : POKE SR, NS%(0,1)
+    GOSUB Play_Sound
+    
+    POKE SR + 1, NS%(1,0) : POKE SR, NS%(1,1)
+    GOSUB Play_Sound
+    
+    RETURN
+
+Play_Full_Win_Sound:
+    DL = 125 : REM Note Delay
+
+    POKE SR + 1, NS%(1,0) : POKE SR, NS%(1,1)
+    GOSUB Play_Sound
+
+    POKE SR + 1, NS%(0,0) : POKE SR, NS%(0,1)
+    GOSUB Play_Sound
+
+    POKE SR + 1, NS%(0,0) : POKE SR, NS%(0,1)
+    GOSUB Play_Sound
+    
+    POKE SR + 1, NS%(1,0) : POKE SR, NS%(1,1)
+    GOSUB Play_Sound
+    
+    RETURN
+
+
 Initialise_Program:
     REM Initialise Program
     GOSUB Initialise_Fruits
+    GOSUB Initialise_Sound: REM Initialise Sound
 
 Initialise_Credits:
     REM Initialise Credits
