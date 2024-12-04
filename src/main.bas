@@ -405,12 +405,18 @@ Decrease_Bet:
     REM Decrease Bet
     IF BT% = 10 THEN Increase_Decrease_Bet__Continue
     BT% = BT% - 10
+    DL = 125 : REM Note Delay
+    POKE SR + 1, NS%(0,0) : POKE SR, NS%(0,1) : REM Play Low Note
+    GOSUB Play_Sound : REM Play Sound
     GOTO Increase_Decrease_Bet__Continue
 
 Increase_Bet:
     REM Increase Bet
     IF BT% = CR OR BT% = 100 THEN Increase_Decrease_Bet__Continue
     BT% = BT% + 10
+    DL = 125 : REM Note Delay
+    POKE SR + 1, NS%(1,0) : POKE SR, NS%(1,1) : REM Play High Note
+    GOSUB Play_Sound : REM Play Sound
 
 Increase_Decrease_Bet__Continue:
     GOSUB Print_Bet_Strip_Text
