@@ -35,7 +35,8 @@ Set_Cursor_Position:
 Get_Random:
     REM Get random number
     IF RS% = 1 THEN GOSUB Randomise_Seed
-    RD% = INT(RND(1) * 6) + 1 : REM 0 = seed based on clock, 6 = FR$ length
+    RD% = INT(RND(1) * 7) : REM 0 = seed based on clock, 6 = FR$ length
+    REM RandomNumber = INT(RND(1) * (Upper - Lower) + Lower)
     RETURN
 
 Randomise_Seed:
