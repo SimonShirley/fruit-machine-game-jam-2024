@@ -2,28 +2,35 @@ GOTO Initialise_Program
 
 Initialise_Fruits:
     REM Define Fruits array
-    DIM FR$(6,1)
+    DIM FR$(6,2)
 
     FR$(0,0) = "CHERRY"
     FR$(0,1) = "3" : REM CHERRY WIN
+    FR$(0,2) = "1" : REM COLOUR
 
     FR$(1,0) = "PEAR"
     FR$(1,1) = "5" : REM PEAR WIN
+    FR$(1,2) = "0" : REM COLOUR
 
     FR$(2,0) = "LEMON"
     FR$(2,1) = "6" : REM LEMON WIN
+    FR$(2,2) = "0" : REM COLOUR
 
     FR$(3,0) = "GRAPE"
     FR$(3,1) = "7" : REM GRAPE WIN
+    FR$(3,2) = "1" : REM COLOUR
 
     FR$(4,0) = "APPLE"
     FR$(4,1) = "8" : REM SEVEN WIN
+    FR$(4,2) = "0" : REM COLOUR
 
     FR$(5,0) = "SEVEN"
     FR$(5,1) = "9" : REM APPLE WIN
+    FR$(5,2) = "1" : REM COLOUR
 
     FR$(6,0) = "BAR"
     FR$(6,1) = "10" : REM BAR WIN
+    FR$(6,2) = "0" : REM COLOUR
 
     RETURN
 
@@ -179,6 +186,21 @@ Get_Reels:
     GOSUB Get_Random : R1% = RD%
     GOSUB Get_Random : R2% = RD%
     GOSUB Get_Random : R3% = RD%
+
+    REM Set reel 1 to fruit sprite data
+    POKE VL+39, VAL(FR$(R1%,2)) : REM Sprite Colour
+    POKE SP, SL + R1% : REM Sprite Symbol
+
+    REM Set reel 2 to fruit sprite data
+    POKE VL+40, VAL(FR$(R2%,2)) : REM Sprite Colour
+    POKE SP + 1, SL + R2% : REM Sprite Symbol
+
+    REM Set reel 2 to fruit sprite data
+    POKE VL+41, VAL(FR$(R3%,2)) : REM Sprite Colour
+    POKE SP + 2, SL + R3% : REM Sprite Symbol
+
+    POKE 53269,PEEK(53269) OR 7 : REM Set sprites 0, 1, and 2 visible
+
     RETURN
 
 Wait_Key:
@@ -337,6 +359,24 @@ Initialise_Program:
     GOSUB Initialise_Fruits
     GOSUB Initialise_Notes: REM Initialise Notes
 
+Initialise_Sprites:
+    REM Initialise Sprites
+    VL = 53248 : REM Base Vic Address and Sprite Screen Location (X) Y pos = + 1
+    SL = 248 : REM Base Sprite Pointer Location
+    SP = 2040 : REM Base Sprite Pointer Address Location
+    SL = 248 : REM Base Sprite Pointer Location
+
+    POKE VL+37,10 : POKE VL+38,2: rem multicolors 1 & 2
+    POKE VL+21,0 : rem set all sprites invisible
+    POKE VL+28, 127: rem multicolor
+    POKE VL+29, 0 : POKE VL+23, 0: rem width & height
+    
+    FOR X=SL*64 TO (SL+7)*64-1: READ Y: POKE X,Y: NEXT
+
+    POKE VL,50 : POKE VL+1,94: rem sprite 0 pos
+    POKE VL+2,135 : POKE VL+3,94: rem sprite 1 pos
+    POKE VL+4,230 : POKE VL+5,94: rem sprite 2 pos
+
 Initialise_Credits:
     REM Initialise Credits
     BT% = 10 : REM Initial Bet : BT% stores bet count
@@ -347,6 +387,7 @@ Restart:
     PRINT "{clr}{white}" : REM Clear screen and set the text to white
     POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
     RD% = INT(RND(-TI)) : REM Re-randomise the random seed
+    POKE 53269,0 : rem set all sprites invisible
     GOSUB Initialise_Sound: REM Initialise Sound
     GOSUB Print_Bet_Credit_Strip_Border : REM Print Bet Credit Strip Border
     GOSUB Print_Machine : REM Print Machine
@@ -429,3 +470,41 @@ Play_Next_Credit__Deduct_Bet:
 Play_Next_Credit__Continue:
     GOSUB Print_Bet_Strip_Text
     GOTO Game_Loop
+
+Sprite_Data:
+    REM Generated with spritemate
+    rem cherry / multicolor / color 1
+    DATA 0,0,0,0,0,0,0,0,0,0,0,64,0,3,240,0
+    DATA 3,16,0,13,0,0,12,0,0,31,0,0,255,192,0,192
+    DATA 192,1,64,80,7,113,220,5,113,92,5,113,92,1,192,112
+    DATA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,129
+    rem pear / multicolor / color 0
+    DATA 0,0,0,0,0,0,0,12,0,0,15,0,0,12,0,0
+    DATA 12,0,0,20,0,0,215,0,0,85,192,0,93,64,3,85
+    DATA 112,13,85,80,13,215,92,13,85,92,13,93,92,3,85,112
+    DATA 0,213,192,0,63,0,0,0,0,0,0,0,0,0,0,128
+    rem lemon / multicolor / color 0
+    DATA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    DATA 20,0,0,117,0,1,85,64,5,215,80,21,85,116,23,119
+    DATA 84,53,85,92,13,221,112,3,85,192,0,215,0,0,60,0
+    DATA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,128
+    rem grape / multicolor / color 1
+    DATA 0,0,0,0,0,0,0,0,12,0,0,60,0,0,240,0
+    DATA 15,192,0,48,64,0,17,80,0,87,112,3,220,192,1,49
+    DATA 0,5,69,64,13,205,192,3,19,0,4,84,0,21,220,0
+    DATA 55,48,0,12,0,0,0,0,0,0,0,0,0,0,0,129
+    rem apple / multicolor / color 0
+    DATA 0,0,0,0,0,0,0,12,0,0,15,0,0,12,0,0
+    DATA 20,0,0,85,0,1,85,64,1,85,192,5,87,0,5,92
+    DATA 0,5,92,0,5,87,0,13,85,192,1,85,64,3,85,192
+    DATA 0,215,0,0,60,0,0,0,0,0,0,0,0,0,0,128
+    rem seven / multicolor / color 1
+    DATA 0,0,0,0,0,0,0,0,0,0,0,0,1,85,64,1
+    DATA 85,64,3,253,64,0,1,64,0,5,64,0,5,192,0,21
+    DATA 0,0,23,0,0,84,0,0,92,0,0,80,0,0,80,0
+    DATA 0,240,0,0,0,0,0,0,0,0,0,0,0,0,0,129
+    rem bar / multicolor / color 0
+    DATA 0,0,0,0,0,0,0,0,0,0,0,0,85,85,85,255
+    DATA 255,255,0,0,0,20,4,20,29,29,29,17,17,17,23,21
+    DATA 23,29,29,29,17,17,17,23,17,17,60,51,51,0,0,0
+    DATA 85,85,85,255,255,255,0,0,0,0,0,0,0,0,0,128
