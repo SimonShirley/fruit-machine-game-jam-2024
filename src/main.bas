@@ -55,30 +55,6 @@ Print_Machine:
     PRINT
     RETURN
 
-Print_Reel_Line:
-    REM Print Reel Line
-    XP% = 5 : YP% = 7 : GOSUB Set_Cursor_Position
-    PRINT "        ";SPC(3);"        ";SPC(3);"        ";
-    GOSUB Set_Cursor_Position
-
-    LN% = 8 : REM LN% = Reel Width in Characters
-    TT$ = "" : REM Reel Line Text String for printing
-
-    SS$ = FR$(R1%,0)
-    GOSUB Centre_Text    
-    TT$ = TT$ + SS$ + " {98} " : REM Add dividing character to text string
-
-    SS$ = FR$(R2%,0)
-    GOSUB Centre_Text
-    TT$ = TT$ + SS$ + " {98} " : REM Add dividing character to text string
-
-    SS$ = FR$(R3%,0)
-    GOSUB Centre_Text
-    TT$ = TT$ + SS$ + " {98}" : REM Add dividing character to text string
-    
-    PRINT TT$;
-    RETURN
-
 Format_Credit_String:
     REM Print Credits
     REM CV is the passed in value for processing
@@ -368,9 +344,10 @@ Initialise_Sprites:
     RESTORE
     FOR X=SL*64 TO (SL+7)*64-1: READ Y: POKE X,Y: NEXT
 
-    POKE VL,50 : POKE VL+1,94: rem sprite 0 pos
-    POKE VL+2,135 : POKE VL+3,94: rem sprite 1 pos
-    POKE VL+4,230 : POKE VL+5,94: rem sprite 2 pos
+    POKE VL+16,4 : REM Enable Sprite 3 MSB (for x pos)
+    POKE VL,84 : POKE VL+1,99: rem sprite 0 pos
+    POKE VL+2,172 : POKE VL+3,99: rem sprite 1 pos
+    POKE VL+4,4 : POKE VL+5,99: rem sprite 2 pos (4 + 255)
     RETURN
 
 
@@ -404,7 +381,6 @@ Restart:
 Game_Loop:
     GOSUB Get_Reels : REM Get Reels
     GOSUB Print_Credit_Strip_Text : REM Print Credit Strip Text
-    GOSUB Print_Reel_Line : REM Print Reel Line Text
 
     SS$ = ""
 
