@@ -51,6 +51,7 @@ Print_Machine:
     PRINT "   {98}          {98}          {98}          {98}"
     PRINT "   {98}          {98}          {98}          {98}"
     PRINT "   {98}          {98}          {98}          {98}"
+    PRINT "   {98}          {98}          {98}          {98}"
     PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
     PRINT
     RETURN
@@ -229,7 +230,7 @@ Print_Bet_Strip_Text:
     GOSUB Format_Credit_String : REM Print Credits
     SS$ = "{92}" + CV$
 
-    XP% = 10 : YP% = 2 : GOSUB Set_Cursor_Position
+    XP% = 10 : YP% = 1 : GOSUB Set_Cursor_Position
     GOSUB Print_Strip_Text
     RETURN
 
@@ -243,7 +244,7 @@ Print_Credit_Strip_Text:
     NEXT I
     SS$ = SS$ + "{92}" + CV$
 
-    XP% = 28 : YP% = 2 : GOSUB Set_Cursor_Position
+    XP% = 28 : YP% = 1 : GOSUB Set_Cursor_Position
     GOSUB Print_Strip_Text
     RETURN
 
@@ -339,15 +340,15 @@ Initialise_Sprites:
     POKE VL+37,10 : POKE VL+38,2: rem multicolors 1 & 2
     POKE VL+21,0 : rem set all sprites invisible
     POKE VL+28, 127: rem multicolor
-    POKE VL+29, 0 : POKE VL+23, 0: rem width & height
+    POKE VL+29, 0 : POKE VL+23, 7: rem width & height
     
     RESTORE
     FOR X=SL*64 TO (SL+7)*64-1: READ Y: POKE X,Y: NEXT
 
     POKE VL+16,4 : REM Enable Sprite 3 MSB (for x pos)
-    POKE VL,84 : POKE VL+1,99: rem sprite 0 pos
-    POKE VL+2,172 : POKE VL+3,99: rem sprite 1 pos
-    POKE VL+4,4 : POKE VL+5,99: rem sprite 2 pos (4 + 255)
+    POKE VL,84 : POKE VL+1,84: rem sprite 0 pos
+    POKE VL+2,172 : POKE VL+3,84: rem sprite 1 pos
+    POKE VL+4,4 : POKE VL+5,84: rem sprite 2 pos (4 + 255)
     RETURN
 
 
@@ -364,7 +365,7 @@ Initialise_Credits:
     CR = IC : REM CR = Credits
 
 Restart:
-    PRINT "{clr}{white}" : REM Clear screen and set the text to white
+    PRINT "{clr}{white}"; : REM Clear screen and set the text to white
     POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
     RD% = INT(RND(-TI)) : REM Re-randomise the random seed
     POKE VL+21,0 : rem set all sprites invisible
