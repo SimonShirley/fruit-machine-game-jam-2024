@@ -108,18 +108,18 @@ Centre_Text:
 Print_Instructions:
     REM Print Instructions with no credits
     IF CR > 0 THEN Print_Instructions__In_Credit
-    PRINT "[ P ] PLAY AGAIN                       "
-    PRINT "[ R ] RESET SPRITES                    "
-    PRINT "[ Q ] QUIT                             "    
+    PRINT "   [ P ] PLAY AGAIN                    "
+    PRINT "   [ R ] RESET SPRITES                 "
+    PRINT "   [ Q ] QUIT                          "    
     PRINT "                                       "
     RETURN
 
 Print_Instructions__In_Credit:
     REM Print Instructions when in credit
-    PRINT "[ S ] Spin Reels                       "
-    PRINT "[+/-] INCREASE / DECREASE BET          "
-    PRINT "[ R ] RESET SPRITES                    "
-    PRINT "[ Q ] Quit                             "
+    PRINT "   [ S ] Spin Reels                    "
+    PRINT "   [+/-] INCREASE / DECREASE BET       "
+    PRINT "   [ R ] RESET SPRITES                 "
+    PRINT "   [ Q ] Quit                          "
     RETURN
 
 Print_Prizes_Text:
