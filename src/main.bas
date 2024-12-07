@@ -132,8 +132,8 @@ Print_Instructions:
     REM Print Instructions with no credits
     IF CR > 0 THEN Print_Instructions__In_Credit
     PRINT "[ P ] PLAY AGAIN                       "
-    PRINT "[ Q ] QUIT                             "
-    PRINT "                                       "
+    PRINT "[ R ] RESET SPRITES                    "
+    PRINT "[ Q ] QUIT                             "    
     PRINT "                                       "
     RETURN
 
@@ -141,8 +141,8 @@ Print_Instructions__In_Credit:
     REM Print Instructions when in credit
     PRINT "[ S ] Spin Reels                       "
     PRINT "[+/-] INCREASE / DECREASE BET          "
+    PRINT "[ R ] RESET SPRITES                    "
     PRINT "[ Q ] Quit                             "
-    PRINT "                                       "
     RETURN
 
 Print_Prizes_Text:
@@ -353,12 +353,6 @@ Play_Full_Win_Sound:
     
     RETURN
 
-
-Initialise_Program:
-    REM Initialise Program
-    GOSUB Initialise_Fruits
-    GOSUB Initialise_Notes: REM Initialise Notes
-
 Initialise_Sprites:
     REM Initialise Sprites
     VL = 53248 : REM Base Vic Address and Sprite Screen Location (X) Y pos = + 1
@@ -371,11 +365,20 @@ Initialise_Sprites:
     POKE VL+28, 127: rem multicolor
     POKE VL+29, 0 : POKE VL+23, 0: rem width & height
     
+    RESTORE
     FOR X=SL*64 TO (SL+7)*64-1: READ Y: POKE X,Y: NEXT
 
     POKE VL,50 : POKE VL+1,94: rem sprite 0 pos
     POKE VL+2,135 : POKE VL+3,94: rem sprite 1 pos
     POKE VL+4,230 : POKE VL+5,94: rem sprite 2 pos
+    RETURN
+
+
+Initialise_Program:
+    REM Initialise Program
+    GOSUB Initialise_Fruits
+    GOSUB Initialise_Notes: REM Initialise Notes
+    GOSUB Initialise_Sprites : REM Initialise Sprites
 
 Initialise_Credits:
     REM Initialise Credits
@@ -387,7 +390,7 @@ Restart:
     PRINT "{clr}{white}" : REM Clear screen and set the text to white
     POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
     RD% = INT(RND(-TI)) : REM Re-randomise the random seed
-    POKE 53269,0 : rem set all sprites invisible
+    POKE VL+21,0 : rem set all sprites invisible
     GOSUB Initialise_Sound: REM Initialise Sound
     GOSUB Print_Bet_Credit_Strip_Border : REM Print Bet Credit Strip Border
     GOSUB Print_Machine : REM Print Machine
@@ -430,6 +433,7 @@ Get_User_Instruction:
     GOSUB Wait_Key : REM Get Keyboard Key
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
+    IF K$ = "R" THEN GOSUB Initialise_Sprites : POKE 53269,7
     IF CR > 0 AND (K$ = "-" OR K$ = "_") THEN Decrease_Bet : REM Decrease Bet
     IF CR > 0 AND (K$ = "+" OR K$ = "=") THEN Increase_Bet : REM Increase Bet
     IF CR > 0 AND K$ = "S" THEN Play_Next_Credit : REM Play Next Credit
