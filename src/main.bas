@@ -1,39 +1,5 @@
 GOTO Initialise_Program
 
-Initialise_Fruits:
-    REM Define Fruits array
-    DIM FR$(6,2)
-
-    FR$(0,0) = "CHERRY"
-    FR$(0,1) = "3" : REM CHERRY WIN
-    FR$(0,2) = "1" : REM COLOUR
-
-    FR$(1,0) = "PEAR"
-    FR$(1,1) = "5" : REM PEAR WIN
-    FR$(1,2) = "0" : REM COLOUR
-
-    FR$(2,0) = "LEMON"
-    FR$(2,1) = "6" : REM LEMON WIN
-    FR$(2,2) = "0" : REM COLOUR
-
-    FR$(3,0) = "GRAPE"
-    FR$(3,1) = "7" : REM GRAPE WIN
-    FR$(3,2) = "1" : REM COLOUR
-
-    FR$(4,0) = "APPLE"
-    FR$(4,1) = "8" : REM SEVEN WIN
-    FR$(4,2) = "0" : REM COLOUR
-
-    FR$(5,0) = "SEVEN"
-    FR$(5,1) = "9" : REM APPLE WIN
-    FR$(5,2) = "1" : REM COLOUR
-
-    FR$(6,0) = "BAR"
-    FR$(6,1) = "10" : REM BAR WIN
-    FR$(6,2) = "0" : REM COLOUR
-
-    RETURN
-
 Set_Cursor_Position:
     REM Set Cursor Position to X=XP%, Y=YP%
     POKE 211,XP% : POKE 214,YP% : SYS 58732
@@ -160,29 +126,13 @@ Print_Prizes_Text__Next:
 
 Get_Reels:
     REM Generate Reels
-    GOSUB Get_Random : R1% = RD%
-    GOSUB Get_Random : R2% = RD%
-    GOSUB Get_Random : R3% = RD%
+    FOR I=1 TO 16
+    GOSUB Get_Random : R1% = RD% : POKE SP + 0, SL + R1%
+    GOSUB Get_Random : R2% = RD% : POKE SP + 1, SL + R2%
+    GOSUB Get_Random : R3% = RD% : POKE SP + 2, SL + R3%
 
-    REM Set reel 1 to fruit sprite data
-    POKE VL+39, VAL(FR$(R1%,2)) : REM Sprite Colour
-    POKE SP, SL + R1% : REM Sprite Symbol
-
-    REM Set reel 2 to fruit sprite data
-    POKE VL+40, VAL(FR$(R2%,2)) : REM Sprite Colour
-    POKE SP + 1, SL + R2% : REM Sprite Symbol
-
-    REM Set reel 2 to fruit sprite data
-    POKE VL+41, VAL(FR$(R3%,2)) : REM Sprite Colour
-    POKE SP + 2, SL + R3% : REM Sprite Symbol
-
-    POKE 53269,PEEK(53269) OR 7 : REM Set sprites 0, 1, and 2 visible
-
-    RETURN
-
-Wait_Key:
-    REM Wait Key
-    GET K$ : IF K$ = "" THEN Wait_Key
+    POKE 53269,7 : REM Set sprites 0, 1, and 2 visible
+    NEXT I
     RETURN
 
 Full_Win:
@@ -341,6 +291,9 @@ Initialise_Sprites:
     POKE VL+21,0 : rem set all sprites invisible
     POKE VL+28, 127: rem multicolor
     POKE VL+29, 0 : POKE VL+23, 7: rem width & height
+    POKE VL+39,0 : REM Sprite 0 Colour
+    POKE VL+40,0 : REM Sprite 1 Colour
+    POKE VL+41,0 : REM Sprite 2 Colour
     
     RESTORE
     FOR X=SL*64 TO (SL+7)*64-1: READ Y: POKE X,Y: NEXT
@@ -354,7 +307,18 @@ Initialise_Sprites:
 
 Initialise_Program:
     REM Initialise Program
-    GOSUB Initialise_Fruits
+
+Initialise_Fruits:
+    DIM FR$(6,1):REM Define Fruits array
+    REM Fruit name, win multiplier
+    FR$(0,0)="CHERRY":FR$(0,1)="3"
+    FR$(1,0)="PEAR"  :FR$(1,1)="5"
+    FR$(2,0)="LEMON" :FR$(2,1)="6"
+    FR$(3,0)="GRAPE" :FR$(3,1)="7"
+    FR$(4,0)="APPLE" :FR$(4,1)="8"
+    FR$(5,0)="SEVEN" :FR$(5,1)="9"
+    FR$(6,0)="BAR"   :FR$(6,1)="10"
+
     GOSUB Initialise_Notes: REM Initialise Notes
     GOSUB Initialise_Sprites : REM Initialise Sprites
 
@@ -407,7 +371,7 @@ Game_Loop__Continue:
     GOSUB Print_Instructions
 
 Get_User_Instruction:
-    GOSUB Wait_Key : REM Get Keyboard Key
+    GET K$ : REM Get Keyboard Key
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
     IF K$ = "R" THEN GOSUB Initialise_Sprites : POKE 53269,7
