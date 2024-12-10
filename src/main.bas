@@ -344,10 +344,8 @@ Restart:
     GOTO Get_User_Instruction : REM Get User Input
 
 Game_Loop:
+    SS$ = "" : GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
     GOSUB Get_Reels : REM Get Reels
-    GOSUB Print_Credit_Strip_Text : REM Print Credit Strip Text
-
-    SS$ = ""
 
     REM Check for Win
     IF R1% = R2% AND R2% = R3% THEN GOSUB Full_Win
@@ -413,7 +411,7 @@ Play_Next_Credit__Deduct_Bet:
     CR = CR - BT%
 
 Play_Next_Credit__Continue:
-    GOSUB Print_Bet_Strip_Text
+    GOSUB Print_Credit_Strip_Text
     GOTO Game_Loop
 
 Sprite_Data:
