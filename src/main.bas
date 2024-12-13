@@ -5,9 +5,8 @@ Wait_Title:
     GOTO Initialise_Credits
 
 Set_Cursor_Position:
-    REM Set Cursor Position to X=XP%, Y=YP%
-    POKE 211,XP% : POKE 214,YP% : SYS 58732
-    REM POKE 781,YP%:POKE 782,XP%:POKE 783,0: SYS 58634
+    REM Set Cursor Position to X=XP%, Y=YP% : Clear Flags : CALL PLOT kernal routine
+    POKE 781,YP%:POKE 782,XP%:POKE 783,0: SYS 65520
     RETURN
 #---------------------
 
