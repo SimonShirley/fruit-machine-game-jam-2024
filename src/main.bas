@@ -18,7 +18,7 @@ Check_For_Sprite_Corruption:
 Check_For_Sprite_Corruption__ReInit_Sprites:
     SS$ = "RESETTING REELS"
     GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
-    GOSUB Initialise_Sprites
+    GOSUB Initialise_Sprites : POKE VL+21,7 : rem set sprites 0, 1 and 2 visible
     SS$ = ""
     GOSUB Print_Win_Strip_Text
     I = 8 : REM Break out of loop
@@ -338,6 +338,15 @@ Print_Prizes_Text__Next:
     PRINT
 
     GOSUB Print_Instructions : REM Print Instructions
+
+Start_With_Random_Reels:
+    RD% = INT(RND(1) * 7) : R1% = RD% : POKE SP + 0, SL + R1%    
+    RD% = INT(RND(1) * 7) : R2% = RD% : POKE SP + 1, SL + R2%
+    RD% = INT(RND(1) * 7) : R3% = RD% : POKE SP + 2, SL + R3%
+
+    GOSUB Check_For_Sprite_Corruption : REM Check for corruption
+    POKE VL+21,7 : rem set sprites 0, 1 and 2 visible
+
     GOSUB Print_Bet_Strip_Text : REM Print Bet Strip Text
     GOSUB Print_Credit_Strip_Text : REM Print Credit Strip Text
     GOTO Get_User_Instruction : REM Get User Input
@@ -347,15 +356,18 @@ Game_Loop:
     SS$ = "" : GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
 Get_Reels:
     REM Generate Reels
+    GOSUB Check_For_Sprite_Corruption : REM Check for corruption
+
     FOR RI=1 TO 16
     RD% = INT(RND(1) * 7) : R1% = RD% : POKE SP + 0, SL + R1%
     RD% = INT(RND(1) * 7) : R2% = RD% : POKE SP + 1, SL + R2%
     RD% = INT(RND(1) * 7) : R3% = RD% : POKE SP + 2, SL + R3%
 
     POKE 53269,7 : REM Set sprites 0, 1, and 2 visible
-    GOSUB Check_For_Sprite_Corruption : REM Check for corruption
     NEXT RI
 #---------------
+
+    GOSUB Check_For_Sprite_Corruption : REM Check for corruption
 
     REM Check for Win
     IF R1% = R2% AND R2% = R3% THEN GOSUB Full_Win
@@ -370,6 +382,7 @@ Get_Reels:
     GOSUB Print_Bet_Strip_Text
 
 Game_Loop__Continue:
+    GOSUB Check_For_Sprite_Corruption : REM Check for corruption
     IF CR > 0 THEN Get_User_Instruction
 
     SS$ = "GAME OVER"
