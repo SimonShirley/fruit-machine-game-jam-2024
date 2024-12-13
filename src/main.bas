@@ -1,4 +1,8 @@
-GOTO Initialise_Program
+GOTO Title_Screen
+
+Wait_Title:
+    GET K$ : IF K$ <> " " THEN Wait_Title
+    GOTO Initialise_Credits
 
 Set_Cursor_Position:
     REM Set Cursor Position to X=XP%, Y=YP%
@@ -239,6 +243,7 @@ Initialise_Sprites:
 #---------------------
 
 Initialise_Program:
+    CLR
     REM Initialise Program
 
 Initialise_Fruits:
@@ -259,6 +264,7 @@ Initialise_Notes:
     NS%(1,0) = 47 : NS%(1,1) = 107 : REM F-Sharp (5)
 
     GOSUB Initialise_Sprites : REM Initialise Sprites
+    GOTO Wait_Title
 
 Initialise_Credits:
     REM Initialise Credits
@@ -420,6 +426,37 @@ Play_Next_Credit__Continue:
     GOSUB Print_Credit_Strip_Text
     GOTO Game_Loop
 #---------------------
+
+Title_Screen:
+    REM Title Screen
+    POKE 53269,0 : rem set all sprites invisible
+    POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
+    PRINT "{clr}{white}                                        ";
+    PRINT "                                        ";
+    PRINT "  {186}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{184}{108}  ";
+    PRINT "  {180}     {102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}{102}     {182}  ";
+    PRINT "  {180}                                  {182}  ";
+    PRINT "  {180}      {lightgreen}Fruit Machine Game Jam{white}      {182}  ";
+    PRINT "  {180}                                  {182}  ";
+    PRINT "  {180}     {100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}{100}     {182}  ";
+    PRINT "  {180}                                  {182}  ";
+    PRINT "  {180}     {185}{185}{185}{185}{185} {182}  {light-red}{rvs on}{190}   {188}{rvs off}{white}  {180}   {yellow}{rvs on}{190} {188}{rvs off}{white}      {182}  ";
+    PRINT "  {180}           {182}     {light-red}{rvs on}{190}{172}{rvs off}{white}  {180}  {yellow}{rvs on}{111}{188} {187}{112}{rvs off}{white}     {182}  ";
+    PRINT "  {180}      BAR  {182}    {light-red}{rvs on}{190}{172}{rvs off}{white}   {180} {yellow}{rvs on}{161} {187}   {rvs off}{161}{white}    {182}  ";
+    PRINT "  {180}           {182}   {light-red}{rvs on}{180}{167}{rvs off}{white}    {180}  {yellow}{rvs on}{108}  {190}{186}{rvs off}{white}     {182}  ";
+    PRINT "  {180}     {184}{184}{184}{184}{184} {182}   {light-red}{rvs on}{175}{175}{rvs off}{white}    {180}   {yellow}{rvs on}{187}{190}{172}{rvs off}{white}      {182}  ";
+    PRINT "  {180}                                  {182}  ";
+    PRINT "  {180}                                  {182}  ";
+    PRINT "  {180}  {yellow}ITCH.IO/JAM/{white}                    {182}  ";
+    PRINT "  {180}  {yellow}THE-SLOT-MACHINE-SIMULATION-JAM{white} {182}  ";
+    PRINT "  {180}                                  {182}  ";
+    PRINT "  {180}        ALTOFLUFF - 2024{grey3}/{white}25       {182}  ";
+    PRINT "  {180}                                  {182}  ";
+    PRINT "  {180}      {grey3}- {light-red}PRESS {yellow}SPACE{light-red} TO PLAY {grey3}-{white}     {182}  ";
+    PRINT "  {112}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{111}  ";
+    PRINT "                                        ";
+    PRINT "                     {grey3}GAME JAM BY RPI{white}";
+    GOTO Initialise_Program : REM Can be readying up the rest of the game while waiting
 
 Sprite_Data:
     REM Generated with spritemate
