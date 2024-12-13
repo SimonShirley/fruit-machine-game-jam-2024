@@ -61,7 +61,7 @@ Centre_Text:
     REM LN% = Available Space Length
 
     REM Check string length and return if too long
-    IF LEN(SS$) => LN% THEN RETURN
+    IF LEN(SS$) >= LN% THEN RETURN
 
     J = INT((LN% - LEN(SS$)) / 2)
     J = J - (J - INT(J/2) * 2) : REM Subtract 1 if J is odd - MOD Function
@@ -71,7 +71,7 @@ Centre_Text:
     NEXT I
 
     REM Check string length and return if too long
-    IF LEN(SS$) => LN% THEN RETURN
+    IF LEN(SS$) >= LN% THEN RETURN
 
     FOR I = LEN(SS$) TO LN% - 1
     SS$ = SS$ + " "
