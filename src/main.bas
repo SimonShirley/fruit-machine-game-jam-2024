@@ -4,6 +4,17 @@ Wait_Title:
     GET K$ : IF K$ <> "S" THEN Wait_Title
     GOTO Initialise_Credits
 
+Get_User_Instruction:
+    GET K$ : REM Get Keyboard Key
+    REM Next instruction based on key press
+    IF K$ = "Q" THEN END
+    IF K$ = "R" THEN GOSUB Initialise_Sprites : POKE 53269,7
+    IF CR > 0 AND (K$ = "-" OR K$ = "_") THEN Decrease_Bet : REM Decrease Bet
+    IF CR > 0 AND (K$ = "+" OR K$ = "=") THEN Increase_Bet : REM Increase Bet
+    IF CR > 0 AND K$ = "S" THEN Play_Next_Credit : REM Play Next Credit
+    IF CR <= 0 AND K$ = "P" THEN Initialise_Credits : REM Initialise Credits
+    GOTO Get_User_Instruction : REM Get Keyboard Key
+
 Set_Cursor_Position:
     REM Set Cursor Position to X=XP%, Y=YP% : Clear Flags : CALL PLOT kernal routine
     POKE 781,YP%:POKE 782,XP%:POKE 783,0: SYS 65520
@@ -346,6 +357,7 @@ Start_With_Random_Reels:
     GOSUB Check_For_Sprite_Corruption : REM Check for corruption
     POKE VL+21,7 : rem set sprites 0, 1 and 2 visible
 
+#---------------------
     GOSUB Print_Bet_Strip_Text : REM Print Bet Strip Text
     GOSUB Print_Credit_Strip_Text : REM Print Credit Strip Text
     GOTO Get_User_Instruction : REM Get User Input
@@ -389,17 +401,8 @@ Game_Loop__Continue:
 
     XP% = 0 : YP% = 20 : GOSUB Set_Cursor_Position
     GOSUB Print_Instructions
+    GOTO Get_User_Instruction
 
-Get_User_Instruction:
-    GET K$ : REM Get Keyboard Key
-    REM Next instruction based on key press
-    IF K$ = "Q" THEN END
-    IF K$ = "R" THEN GOSUB Initialise_Sprites : POKE 53269,7
-    IF CR > 0 AND (K$ = "-" OR K$ = "_") THEN Decrease_Bet : REM Decrease Bet
-    IF CR > 0 AND (K$ = "+" OR K$ = "=") THEN Increase_Bet : REM Increase Bet
-    IF CR > 0 AND K$ = "S" THEN Play_Next_Credit : REM Play Next Credit
-    IF CR <= 0 AND K$ = "P" THEN Initialise_Credits : REM Initialise Credits
-    GOTO Get_User_Instruction : REM Get Keyboard Key
 #---------------------
 
 Decrease_Bet:
