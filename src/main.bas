@@ -1,7 +1,7 @@
 GOTO Title_Screen
 
 Wait_Title:
-    GET K$ : IF K$ <> " " THEN Wait_Title
+    GET K$ : IF K$ <> "S" THEN Wait_Title
     GOTO Initialise_Credits
 
 Set_Cursor_Position:
@@ -465,7 +465,7 @@ Title_Screen:
     PRINT "  {180}                                  {182}  ";
     PRINT "  {180}        ALTOFLUFF - 2024{grey3}/{white}25       {182}  ";
     PRINT "  {180}                                  {182}  ";
-    PRINT "  {180}      {grey3}- {light-red}PRESS {yellow}SPACE{light-red} TO PLAY {grey3}-{white}     {182}  ";
+    PRINT "  {180}        {grey3}- {light-red}PRESS {yellow}S{light-red} TO PLAY {grey3}-{white}       {182}  ";
     PRINT "  {112}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{111}  ";
     PRINT "                                        ";
     PRINT "                     {grey3}GAME JAM BY RPI{white}";
