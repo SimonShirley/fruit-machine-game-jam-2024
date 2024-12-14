@@ -13,6 +13,8 @@ Get_User_Instruction:
     IF CR > 0 AND (K$ = "+" OR K$ = "=") THEN Increase_Bet : REM Increase Bet
     IF CR > 0 AND K$ = "S" THEN Play_Next_Credit : REM Play Next Credit
     IF CR <= 0 AND K$ = "P" THEN Initialise_Credits : REM Initialise Credits
+    IF CR <= 0 AND GC < 150 THEN GC = GC + 1 : REM GC = Game over timer counter
+    IF GC >= 150 THEN Title_Screen
     GOTO Get_User_Instruction : REM Get Keyboard Key
 
 Set_Cursor_Position:
@@ -253,8 +255,9 @@ Initialise_Sprites:
 #---------------------
 
 Initialise_Program:
-    CLR
     REM Initialise Program
+    CLR
+    
 
 Initialise_Fruits:
     DIM FR$(6,1):REM Define Fruits array
@@ -287,6 +290,7 @@ Restart:
     POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
     RD% = INT(RND(-TI)) : REM Re-randomise the random seed
     POKE VL+21,0 : rem set all sprites invisible
+    GC = 0 : REM GC = Game over timer counter    
 Initialise_Sound:
     SR = 54272 : REM SID BASE ADDRESS
     FOR I = SR TO SR + 24 : POKE I,0 : NEXT : REM Reset SID
