@@ -378,6 +378,10 @@ Get_Reels:
     RD% = INT(RND(1) * 7) : R2% = RD% : POKE SP + 1, SL + R2%
     RD% = INT(RND(1) * 7) : R3% = RD% : POKE SP + 2, SL + R3%
 
+    POKE SR + 1,10 : POKE SR,0 : REM Play Reel Sound Pitch
+    POKE SR + 4, 129 : REM GATE(1) + NOISE(128)
+    POKE SR + 4, 128 : REM GATE(0) + NOISE(128) : TURN SOUND OFF
+
     POKE 53269,7 : REM Set sprites 0, 1, and 2 visible
     NEXT RI
 #---------------
