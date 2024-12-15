@@ -5,6 +5,9 @@ Wait_Title:
     GOTO Initialise_Credits
 
 Get_User_Instruction:
+Check_String_Variable_Pointer:
+    IF PEEK(52) <= 140 THEN POKE 52,150 : REM Limit Growth of string variable pointer
+
     GET K$ : REM Get Keyboard Key
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
