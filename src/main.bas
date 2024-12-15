@@ -26,24 +26,6 @@ Set_Cursor_Position:
     RETURN
 #---------------------
 
-Check_For_Sprite_Corruption:
-    REM Check For Sprite Corruption
-    FOR I = 0 TO 6
-    IF PEEK((I + SL)*64) = 0 THEN Check_For_Sprite_Corruption__Next
-Check_For_Sprite_Corruption__ReInit_Sprites:
-    SS$ = "RESETTING REELS"
-    GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
-    GOSUB Initialise_Sprites : POKE VL+21,7 : rem set sprites 0, 1 and 2 visible
-    SS$ = ""
-    GOSUB Print_Win_Strip_Text
-    I = 8 : REM Break out of loop
-
-Check_For_Sprite_Corruption__Next:
-    NEXT I
-
-    RETURN
-#---------------------
-
 Format_Credit_String:
     REM Print Credits
     REM CV is the passed in value for processing
@@ -360,8 +342,6 @@ Start_With_Random_Reels:
     RD% = INT(RND(1) * 7) : R1% = RD% : POKE SP + 0, SL + R1%    
     RD% = INT(RND(1) * 7) : R2% = RD% : POKE SP + 1, SL + R2%
     RD% = INT(RND(1) * 7) : R3% = RD% : POKE SP + 2, SL + R3%
-
-    GOSUB Check_For_Sprite_Corruption : REM Check for corruption
     POKE VL+21,7 : rem set sprites 0, 1 and 2 visible
 
 #---------------------
@@ -374,7 +354,6 @@ Game_Loop:
     SS$ = "" : GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
 Get_Reels:
     REM Generate Reels
-    GOSUB Check_For_Sprite_Corruption : REM Check for corruption
 
     FOR RI=1 TO 16
     RD% = INT(RND(1) * 7) : R1% = RD% : POKE SP + 0, SL + R1%
@@ -389,8 +368,6 @@ Get_Reels:
     NEXT RI
 #---------------
 
-    GOSUB Check_For_Sprite_Corruption : REM Check for corruption
-
     REM Check for Win
     IF R1% = R2% AND R2% = R3% THEN GOSUB Full_Win
     IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win
@@ -404,7 +381,6 @@ Get_Reels:
     GOSUB Print_Bet_Strip_Text
 
 Game_Loop__Continue:
-    GOSUB Check_For_Sprite_Corruption : REM Check for corruption
     IF CR > 0 THEN Get_User_Instruction
 
     SS$ = "GAME OVER"
