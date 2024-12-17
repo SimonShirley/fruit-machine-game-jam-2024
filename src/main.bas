@@ -1,3 +1,11 @@
+REM Set VIC Bank 2
+POKE 56578,PEEK(56578) OR 3 : REM Allow writing to PORT A
+POKE 56576,(PEEK(56576) AND 252) or 1 : REM Set PORT A serial bus access to VIC Bank 2
+POKE 53272,4 : REM Set pointer of bitmap memory to $2000-$27FF / 8192-10239
+POKE 648,128 : REM High byte of pointer to screen memory for screen input/output
+REM 128 * 256 = 32768, which is the start of Bank 2
+rem -----
+
 GOTO Title_Screen
 
 Wait_Title:
@@ -218,8 +226,10 @@ Play_Full_Win_Sound:
 Initialise_Sprites:
     REM Initialise Sprites
     VL = 53248 : REM Base Vic Address and Sprite Screen Location (X) Y pos = + 1
-    SL = 248 : REM Base Sprite Pointer Location
-    SP = 2040 : REM Base Sprite Pointer Address Location
+    SL = 16 : REM Base Sprite Pointer Location
+    VR = 32768
+    SP = VR + 1016 : REM Base Sprite Pointer Address Location
+    
 
     POKE VL+37,10 : POKE VL+38,2: rem multicolors 1 & 2
     POKE VL+21,0 : rem set all sprites invisible
@@ -230,7 +240,7 @@ Initialise_Sprites:
     POKE VL+41,0 : REM Sprite 2 Colour
     
     RESTORE
-    FOR X=SL*64 TO (SL+7)*64-1: READ Y: POKE X,Y: NEXT
+    FOR X=0TO9 : FOR Y=0TO63 : READ Z : POKE VR + ((X+SL)*64) + Y,Z : NEXT : NEXT
 
     POKE VL+16,4 : REM Enable Sprite 3 MSB (for x pos)
     POKE VL,84 : POKE VL+1,84: rem sprite 0 pos
@@ -497,3 +507,19 @@ Sprite_Data:
     DATA 255,255,0,0,0,20,4,20,29,29,29,17,17,17,23,21
     DATA 23,29,29,29,17,17,17,23,17,17,60,51,51,0,0,0
     DATA 85,85,85,255,255,255,0,0,0,0,0,0,0,0,0,128
+    rem cherry / multicolor / color 1
+    DATA 0,0,0,0,0,0,0,0,0,0,0,64,0,3,240,0
+    DATA 3,16,0,13,0,0,12,0,0,31,0,0,255,192,0,192
+    DATA 192,1,64,80,7,113,220,5,113,92,5,113,92,1,192,112
+    DATA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,129
+    rem cherry / multicolor / color 1
+    DATA 0,0,0,0,0,0,0,0,0,0,0,64,0,3,240,0
+    DATA 3,16,0,13,0,0,12,0,0,31,0,0,255,192,0,192
+    DATA 192,1,64,80,7,113,220,5,113,92,5,113,92,1,192,112
+    DATA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,129
+    rem cherry / multicolor / color 1
+    DATA 0,0,0,0,0,0,0,0,0,0,0,64,0,3,240,0
+    DATA 3,16,0,13,0,0,12,0,0,31,0,0,255,192,0,192
+    DATA 192,1,64,80,7,113,220,5,113,92,5,113,92,1,192,112
+    DATA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,129
+#    # PRINT PEEK(47)+256*PEEK(48)
