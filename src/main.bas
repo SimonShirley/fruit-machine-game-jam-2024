@@ -14,7 +14,7 @@ Wait_Title:
 
 Get_User_Instruction:
 Check_String_Variable_Pointer:
-    IF PEEK(52) <= 140 THEN POKE 52,150 : REM Limit Growth of string variable pointer
+    IF PEEK(52) <= 144 THEN POKE 52,150 : REM Limit Growth of string variable pointer
 
     GET K$ : REM Get Keyboard Key
     REM Next instruction based on key press
@@ -161,7 +161,7 @@ Print_Credit_Strip_Text:
     NEXT I
     SS$ = SS$ + "{92}" + CV$
 
-    XP% = 28 : YP% = 1 : GOSUB Set_Cursor_Position
+    XP% = 31 : YP% = 1 : GOSUB Set_Cursor_Position
     GOSUB Print_Strip_Text
     RETURN
 #---------------------
@@ -234,13 +234,13 @@ Initialise_Sprites:
     
     FOR X=0TO11 : FOR Y=0TO63 : READ Z : POKE VR + ((X+SL)*64) + Y,Z : NEXT : NEXT
 
-    POKE VL+16,48 : REM Enable Sprite 2 & 5 MSB (for x pos)  00110000
-    POKE VL,84 : POKE VL+1,88: rem sprite 0 pos
-    POKE VL+2,84 : POKE VL+3,130: rem sprite 0 pos
-    POKE VL+4,172 : POKE VL+5,88: rem sprite 1 pos
-    POKE VL+6,172 : POKE VL+7,130: rem sprite 1 pos
-    POKE VL+8,4 : POKE VL+9,88: rem sprite 2 pos (4 + 255)
-    POKE VL+10,4 : POKE VL+11,130: rem sprite 2 pos (4 + 255)
+    POKE VL+16,0 : REM Disable Sprites MSB (for x pos)
+    POKE VL,40 : POKE VL+1,88: rem sprite 0 pos
+    POKE VL+2,40 : POKE VL+3,130: rem sprite 0 pos
+    POKE VL+4,88 : POKE VL+5,88: rem sprite 1 pos
+    POKE VL+6,88 : POKE VL+7,130: rem sprite 1 pos
+    POKE VL+8,136 : POKE VL+9,88: rem sprite 2 pos (4 + 255)
+    POKE VL+10,136 : POKE VL+11,130: rem sprite 2 pos (4 + 255)
     RETURN
 #---------------------
 
@@ -296,62 +296,31 @@ Initialise_Sound:
     POKE SR + 24,15 : REM SET MAX VOLUME
 Print_Bet_Credit_Strip_Border:
     REM Print Bet and Credit Strip Borders
-    PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174} {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
-    PRINT "     BET:           Credit:"
-    PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189} {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
-    PRINT
+    PRINT "{176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}  {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}";
+    PRINT "    BET:               Credit:"
+    PRINT "{173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}  {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
 Print_Machine:
     REM Print Machine Graphics
-    PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{178}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{178}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
-    PRINT "   {98}          {98}          {98}          {98}"
-    PRINT "   {98}          {98}          {98}          {98}"
-    PRINT "   {98}          {98}          {98}          {98}"
-    PRINT "   {98}          {98}          {98}          {98}"
-    PRINT "   {98}          {98}          {98}          {98}"
-    PRINT "   {98}          {98}          {98}          {98}"
-    PRINT "   {98}          {98}          {98}          {98}"
-    PRINT "   {98}          {98}          {98}          {98}"
-    PRINT "   {98}          {98}          {98}          {98}"
-    PRINT "   {98}          {98}          {98}          {98}"
-    PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
+    PRINT "{176}{99}{99}{99}{99}{99}{178}{99}{99}{99}{99}{99}{178}{99}{99}{99}{99}{99}{174}  {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}";
+    PRINT "{98}     {98}     {98}     {98}                     ";
+    PRINT "{98}     {98}     {98}     {98}    WIN WIN - : 2X   ";
+    PRINT "{98}     {98}     {98}     {98}    CHERRY    : 3X   ";
+    PRINT "{98}     {98}     {98}     {98}    PEAR      : 5X   ";
+    PRINT "{109}     {98}     {98}     {110}    LEMON     : 6X   ";
+    PRINT "{110}     {98}     {98}     {109}    GRAPE     : 7X   ";
+    PRINT "{98}     {98}     {98}     {98}    APPLE     : 8X   ";
+    PRINT "{98}     {98}     {98}     {98}    SEVEN     : 9X   ";
+    PRINT "{98}     {98}     {98}     {98}    BAR       : 10X  ";
+    PRINT "{98}     {98}     {98}     {98}                     ";
+    PRINT "{173}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{189}  {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}";
     PRINT
 Print_Status_Strip_Border:
     REM Print Status Strip Borders
-    PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
+    PRINT "{176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}";
+    PRINT
+    PRINT "{173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}";
     PRINT
     PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
-Print_Prizes_Text:
-    REM Print Prizes Text - Tab not available because of column width
-    SS$ = "    WIN WIN - : 2X  " + FR$(0,0)
-    
-    FOR J = LEN(FR$(0,0)) TO 9
-    SS$ = SS$ + " "
-    NEXT J
-
-    PRINT SS$ + ": " + FR$(0,1) + "X"
-
-    FOR I = 1 TO 6 : REM FRUIT SIZE
-    SS$ = "    " + FR$(I,0)
-
-    FOR J = LEN(FR$(I,0)) TO 9
-    SS$ = SS$ + " "
-    NEXT J
-    
-    SS$ = SS$ + ": " + FR$(I,1) + "X  "
-
-    I = I + 1
-    IF I > 6 THEN Print_Prizes_Text__Next : REM Jump out if array size is odd
-
-    SS$ = SS$ + FR$(I,0)
-    
-    FOR J = LEN(FR$(I,0)) TO 9
-    SS$ = SS$ + " "
-    NEXT J
-
-    PRINT SS$ + ": " + FR$(I,1) + "X"
-
-Print_Prizes_Text__Next:
-    NEXT I
 
     GOSUB Print_Instructions : REM Print Instructions
 
@@ -420,7 +389,7 @@ Game_Loop__Continue:
     SS$ = "GAME OVER"
     GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
 
-    XP% = 0 : YP% = 24 : GOSUB Set_Cursor_Position
+    XP% = 0 : YP% = 21 : GOSUB Set_Cursor_Position
     GOSUB Print_Instructions
     GOTO Get_User_Instruction
 
