@@ -19,7 +19,7 @@ Check_String_Variable_Pointer:
     GET K$ : REM Get Keyboard Key
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
-    IF K$ = "R" THEN GOSUB Initialise_Sprites : POKE 53269,7
+    IF K$ = "R" THEN GOSUB Initialise_Sprites : POKE 53269,63
     IF CR > 0 AND (K$ = "-" OR K$ = "_") THEN Decrease_Bet : REM Decrease Bet
     IF CR > 0 AND (K$ = "+" OR K$ = "=") THEN Increase_Bet : REM Increase Bet
     IF CR > 0 AND K$ = "S" THEN Play_Next_Credit : REM Play Next Credit
@@ -233,19 +233,20 @@ Initialise_Sprites:
 
     POKE VL+37,10 : POKE VL+38,2: rem multicolors 1 & 2
     POKE VL+21,0 : rem set all sprites invisible
-    POKE VL+28, 127: rem multicolor
-    POKE VL+29, 0 : POKE VL+23, 7: rem width & height
-    POKE VL+39,0 : REM Sprite 0 Colour
-    POKE VL+40,0 : REM Sprite 1 Colour
-    POKE VL+41,0 : REM Sprite 2 Colour
+    POKE VL+27,255 : REM Set sprites behind characters
+    POKE VL+28, 255: rem multicolor
+    POKE VL+29, 0 : POKE VL+23, 255: rem width & height    
+    FOR X = 0 TO 5 : POKE VL+39+X,0 : NEXT : REM Sprite Colours (0)
     
-    RESTORE
-    FOR X=0TO9 : FOR Y=0TO63 : READ Z : POKE VR + ((X+SL)*64) + Y,Z : NEXT : NEXT
+    FOR X=0TO11 : FOR Y=0TO63 : READ Z : POKE VR + ((X+SL)*64) + Y,Z : NEXT : NEXT
 
-    POKE VL+16,4 : REM Enable Sprite 3 MSB (for x pos)
-    POKE VL,84 : POKE VL+1,84: rem sprite 0 pos
-    POKE VL+2,172 : POKE VL+3,84: rem sprite 1 pos
-    POKE VL+4,4 : POKE VL+5,84: rem sprite 2 pos (4 + 255)
+    POKE VL+16,48 : REM Enable Sprite 2 & 5 MSB (for x pos)  00110000
+    POKE VL,84 : POKE VL+1,85: rem sprite 0 pos
+    POKE VL+2,84 : POKE VL+3,127: rem sprite 0 pos
+    POKE VL+4,172 : POKE VL+5,85: rem sprite 1 pos
+    POKE VL+6,172 : POKE VL+7,127: rem sprite 1 pos
+    POKE VL+8,4 : POKE VL+9,85: rem sprite 2 pos (4 + 255)
+    POKE VL+10,4 : POKE VL+11,127: rem sprite 2 pos (4 + 255)
     RETURN
 #---------------------
 
@@ -264,6 +265,14 @@ Initialise_Fruits:
     FR$(4,0)="APPLE" :FR$(4,1)="8"
     FR$(5,0)="SEVEN" :FR$(5,1)="9"
     FR$(6,0)="BAR"   :FR$(6,1)="10"
+
+Intialise_Reel_Order:
+    RESTORE
+    DIM RO%(15) : REM Reel Order
+    FOR I = 0 TO 15 : READ Q : RO%(I) = Q : NEXT
+    
+    DIM SO%(16) : REM Sprite Order, last item repeated
+    FOR I = 0 TO 16 : READ Q : SO%(I) = Q : NEXT
 
 Initialise_Notes:
     REM Notes Array
@@ -349,10 +358,10 @@ Print_Prizes_Text__Next:
     GOSUB Print_Instructions : REM Print Instructions
 
 Start_With_Random_Reels:
-    RD% = INT(RND(1) * 7) : R1% = RD% : POKE SP + 0, SL + R1%    
-    RD% = INT(RND(1) * 7) : R2% = RD% : POKE SP + 1, SL + R2%
-    RD% = INT(RND(1) * 7) : R3% = RD% : POKE SP + 2, SL + R3%
-    POKE VL+21,7 : rem set sprites 0, 1 and 2 visible
+    R1 = INT(RND(1)*16) AND 15:R1% = RO%(R1):POKE SP+0,SL+SO%(R1):POKE SP+1,SL+SO%(R1+1)
+    R2 = INT(RND(1)*16) AND 15:R2% = RO%(R2):POKE SP+2,SL+SO%(R2):POKE SP+3,SL+SO%(R2+1)
+    R3 = INT(RND(1)*16) AND 15:R3% = RO%(R3):POKE SP+4,SL+SO%(R3):POKE SP+5,SL+SO%(R3+1)
+    POKE VL+21,63 : rem set sprites 0-5 visible
 
 #---------------------
     GOSUB Print_Bet_Strip_Text : REM Print Bet Strip Text
@@ -365,17 +374,34 @@ Game_Loop:
 Get_Reels:
     REM Generate Reels
 
-    FOR RI=1 TO 16
-    RD% = INT(RND(1) * 7) : R1% = RD% : POKE SP + 0, SL + R1%
-    RD% = INT(RND(1) * 7) : R2% = RD% : POKE SP + 1, SL + R2%
-    RD% = INT(RND(1) * 7) : R3% = RD% : POKE SP + 2, SL + R3%
+    REM Shake the random numbers a few times and set offsets for the reels
+    FOR RI = 0 TO 4
+    R1% = INT(RND(1) * 4) : R2% = INT(RND(1) * 4) : R3% = INT(RND(1) * 4)
+    NEXT RI
 
+    FOR RI=1 TO 24
+    REM Reels will spin for at least 12 counts
+    IF RI < (12 + R1%) THEN R1 = (R1 - 1) AND 15
+    IF RI < (16 + R2%) THEN R2 = (R2 - 1) AND 15
+    IF RI < (20 + R3%) THEN R3 = (R3 - 1) AND 15
+    
+    POKE SP + 0, SL + SO%(R1) : POKE SP + 1, SL + SO%(R1+1)
+    POKE SP + 2, SL + SO%(R2) : POKE SP + 3, SL + SO%(R2+1)
+    POKE SP + 4, SL + SO%(R3) : POKE SP + 5, SL + SO%(R3+1)
+
+    REM only play click sound if reels are still spinning
+    IF RI >= 20 + R3% THEN RI = 99 : GOTO Get_Reels__Next
     POKE SR + 1,10 : POKE SR,0 : REM Play Reel Sound Pitch
     POKE SR + 4, 129 : REM GATE(1) + NOISE(128)
-    POKE SR + 4, 128 : REM GATE(0) + NOISE(128) : TURN SOUND OFF
+    POKE SR + 4, 128 : REM GATE(0) + NOISE(128) : TURN SOUND OFF   
 
-    POKE 53269,7 : REM Set sprites 0, 1, and 2 visible
+Get_Reels__Next:
     NEXT RI
+
+    REM Get reel symbol value to calculate win
+    R1% = RO%(R1 AND 15) : R2% = RO%(R2 AND 15) : R3% = RO%(R3 AND 15)
+
+    POKE 53269,63 : REM Set sprites 0-5 visible
 #---------------
 
     REM Check for Win
@@ -469,57 +495,70 @@ Title_Screen:
     PRINT "                                        ";
     PRINT "                     {grey3}GAME JAM BY RPI{white}";
     GOTO Initialise_Program : REM Can be readying up the rest of the game while waiting
-
+    
+REM Reel Order
+    DATA 6,0,3,2,1,0,2,4,5,1,3,2,1,0,3,4
+    DATA 0,1,2,3,4,5,6,7,8,9,10,3,4,5,2,11,0
 Sprite_Data:
     REM Generated with spritemate
-    rem cherry / multicolor / color 1
-    DATA 0,0,0,0,0,0,0,0,0,0,0,64,0,3,240,0
-    DATA 3,16,0,13,0,0,12,0,0,31,0,0,255,192,0,192
-    DATA 192,1,64,80,7,113,220,5,113,92,5,113,92,1,192,112
-    DATA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,129
-    rem pear / multicolor / color 0
-    DATA 0,0,0,0,0,0,0,12,0,0,15,0,0,12,0,0
-    DATA 12,0,0,20,0,0,215,0,0,85,192,0,93,64,3,85
-    DATA 112,13,85,80,13,215,92,13,85,92,13,93,92,3,85,112
-    DATA 0,213,192,0,63,0,0,0,0,0,0,0,0,0,0,128
-    rem lemon / multicolor / color 0
-    DATA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-    DATA 20,0,0,117,0,1,85,64,5,215,80,21,85,116,23,119
-    DATA 84,53,85,92,13,221,112,3,85,192,0,215,0,0,60,0
-    DATA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,128
-    rem grape / multicolor / color 1
-    DATA 0,0,0,0,0,0,0,0,12,0,0,60,0,0,240,0
-    DATA 15,192,0,48,64,0,17,80,0,87,112,3,220,192,1,49
-    DATA 0,5,69,64,13,205,192,3,19,0,4,84,0,21,220,0
-    DATA 55,48,0,12,0,0,0,0,0,0,0,0,0,0,0,129
-    rem apple / multicolor / color 0
-    DATA 0,0,0,0,0,0,0,12,0,0,15,0,0,12,0,0
-    DATA 20,0,0,85,0,1,85,64,1,85,192,5,87,0,5,92
-    DATA 0,5,92,0,5,87,0,13,85,192,1,85,64,3,85,192
-    DATA 0,215,0,0,60,0,0,0,0,0,0,0,0,0,0,128
-    rem seven / multicolor / color 1
-    DATA 0,0,0,0,0,0,0,0,0,0,0,0,1,85,64,1
-    DATA 85,64,3,253,64,0,1,64,0,5,64,0,5,192,0,21
-    DATA 0,0,23,0,0,84,0,0,92,0,0,80,0,0,80,0
-    DATA 0,240,0,0,0,0,0,0,0,0,0,0,0,0,0,129
-    rem bar / multicolor / color 0
-    DATA 0,0,0,0,0,0,0,0,0,0,0,0,85,85,85,255
-    DATA 255,255,0,0,0,20,4,20,29,29,29,17,17,17,23,21
-    DATA 23,29,29,29,17,17,17,23,17,17,60,51,51,0,0,0
-    DATA 85,85,85,255,255,255,0,0,0,0,0,0,0,0,0,128
-    rem cherry / multicolor / color 1
-    DATA 0,0,0,0,0,0,0,0,0,0,0,64,0,3,240,0
-    DATA 3,16,0,13,0,0,12,0,0,31,0,0,255,192,0,192
-    DATA 192,1,64,80,7,113,220,5,113,92,5,113,92,1,192,112
-    DATA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,129
-    rem cherry / multicolor / color 1
-    DATA 0,0,0,0,0,0,0,0,0,0,0,64,0,3,240,0
-    DATA 3,16,0,13,0,0,12,0,0,31,0,0,255,192,0,192
-    DATA 192,1,64,80,7,113,220,5,113,92,5,113,92,1,192,112
-    DATA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,129
-    rem cherry / multicolor / color 1
-    DATA 0,0,0,0,0,0,0,0,0,0,0,64,0,3,240,0
-    DATA 3,16,0,13,0,0,12,0,0,31,0,0,255,192,0,192
-    DATA 192,1,64,80,7,113,220,5,113,92,5,113,92,1,192,112
-    DATA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,129
+    :: rem 0 apple-bar / multicolor / color: 0
+    data 5,92,0,5,87,0,13,85,192,1,85,64,3,85,192,0
+    data 215,0,0,60,0,0,0,0,0,0,0,0,0,0,0,0
+    data 0,0,0,0,0,0,0,0,0,0,85,85,85,255,255,255
+    data 0,0,0,20,4,20,29,29,29,17,17,17,23,21,23,128
+    :: rem 1 bar-cherry / multicolor / color: 0
+    data 29,29,29,17,17,17,23,17,17,60,51,51,0,0,0,85
+    data 85,85,255,255,255,0,0,0,0,0,0,0,0,0,0,0
+    data 0,0,0,0,0,0,0,0,0,64,0,3,240,0,3,16
+    data 0,13,0,0,12,0,0,31,0,0,255,192,0,192,192,128
+    :: rem 2 cherry-grape / multicolor / color: 0
+    data 1,64,80,7,113,220,5,113,92,5,113,92,1,192,112,0
+    data 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    data 0,0,0,0,0,0,12,0,0,60,0,0,240,0,15,192
+    data 0,48,64,0,17,80,0,87,112,3,220,192,1,49,0,129
+    :: rem 3 grape-lemon / multicolor / color: 0
+    data 5,69,64,13,205,192,3,19,0,4,84,0,21,220,0,55
+    data 48,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0
+    data 0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0
+    data 0,117,0,1,85,64,5,215,80,21,85,116,23,119,84,129
+    :: rem 4 lemon-pear / multicolor / color: 0
+    data 53,85,92,13,221,112,3,85,192,0,215,0,0,60,0,0
+    data 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    data 0,0,0,0,0,12,0,0,15,0,0,12,0,0,12,0
+    data 0,20,0,0,215,0,0,85,192,0,93,64,3,85,112,128
+    :: rem 5 pear-cherry / multicolor / color: 0
+    data 13,85,80,13,215,92,13,85,92,13,93,92,3,85,112,0
+    data 213,192,0,63,0,0,0,0,0,0,0,0,0,0,0,0
+    data 0,0,0,0,0,0,0,0,0,64,0,3,240,0,3,16
+    data 0,13,0,0,12,0,0,31,0,0,255,192,0,192,192,128
+    :: rem 6 cherry-lemon / multicolor / color: 0
+    data 1,64,80,7,113,220,5,113,92,5,113,92,1,192,112,0
+    data 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    data 0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0
+    data 0,117,0,1,85,64,5,215,80,21,85,116,23,119,84,129
+    :: rem 7 lemon-apple / multicolor / color: 0
+    data 53,85,92,13,221,112,3,85,192,0,215,0,0,60,0,0
+    data 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    data 0,0,0,0,0,12,0,0,15,0,0,12,0,0,20,0
+    data 0,85,0,1,85,64,1,85,192,5,87,0,5,92,0,128
+    :: rem 8 apple-seven / multicolor / color: 0
+    data 5,92,0,5,87,0,13,85,192,1,85,64,3,85,192,0
+    data 215,0,0,60,0,0,0,0,0,0,0,0,0,0,0,0
+    data 0,0,0,0,0,0,0,0,0,0,0,0,0,1,85,64
+    data 1,85,64,3,253,64,0,1,64,0,5,64,0,5,192,128
+    :: rem 9 seven-pear / multicolor / color: 0
+    data 0,21,0,0,23,0,0,84,0,0,92,0,0,80,0,0
+    data 80,0,0,240,0,0,0,0,0,0,0,0,0,0,0,0
+    data 0,0,0,0,0,12,0,0,15,0,0,12,0,0,12,0
+    data 0,20,0,0,215,0,0,85,192,0,93,64,3,85,112,129
+    :: rem 10 pear-grape / multicolor / color: 0
+    data 13,85,80,13,215,92,13,85,92,13,93,92,3,85,112,0
+    data 213,192,0,63,0,0,0,0,0,0,0,0,0,0,0,0
+    data 0,0,0,0,0,0,12,0,0,60,0,0,240,0,15,192
+    data 0,48,64,0,17,80,0,87,112,3,220,192,1,49,0,128
+    :: rem 11 grape-apple / multicolor / color: 0
+    data 5,69,64,13,205,192,3,19,0,4,84,0,21,220,0,55
+    data 48,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0
+    data 0,0,0,0,0,12,0,0,15,0,0,12,0,0,20,0
+    data 0,85,0,1,85,64,1,85,192,5,87,0,5,92,0,128
 #    # PRINT PEEK(47)+256*PEEK(48)
