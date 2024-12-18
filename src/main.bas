@@ -88,19 +88,13 @@ Centre_Text:
 Print_Instructions:
     REM Print Instructions with no credits
     IF CR > 0 THEN Print_Instructions__In_Credit
-    PRINT "   [ P ] PLAY AGAIN                    "
-    PRINT "   [ Q ] QUIT                          "
-    PRINT "                                       "
-    PRINT "                                       "
+    PRINT "   [ P ] PLAY AGAIN   [ Q ] QUIT      ";
     RETURN
 #---------------------
 
 Print_Instructions__In_Credit:
     REM Print Instructions when in credit
-    PRINT "   [ S ] Spin Reels                    "
-    PRINT "   [+/-] INCREASE / DECREASE BET       "
-    PRINT "   [ Q ] QUIT                          "
-    PRINT "                                       "
+    PRINT "   [ S ] Spin  [+/-] BET  [ Q ] QUIT  ";
     RETURN
 #---------------------
 
@@ -141,7 +135,7 @@ Print_Win_Strip_Text__Centre_Text:
     GOSUB Centre_Text
 
 Print_Win_Strip_Text__Continue:
-    XP% = 5 : YP% = 12 : GOSUB Set_Cursor_Position
+    XP% = 5 : YP% = 18 : GOSUB Set_Cursor_Position
     GOSUB Print_Strip_Text
     RETURN
 #---------------------
@@ -241,12 +235,12 @@ Initialise_Sprites:
     FOR X=0TO11 : FOR Y=0TO63 : READ Z : POKE VR + ((X+SL)*64) + Y,Z : NEXT : NEXT
 
     POKE VL+16,48 : REM Enable Sprite 2 & 5 MSB (for x pos)  00110000
-    POKE VL,84 : POKE VL+1,85: rem sprite 0 pos
-    POKE VL+2,84 : POKE VL+3,127: rem sprite 0 pos
-    POKE VL+4,172 : POKE VL+5,85: rem sprite 1 pos
-    POKE VL+6,172 : POKE VL+7,127: rem sprite 1 pos
-    POKE VL+8,4 : POKE VL+9,85: rem sprite 2 pos (4 + 255)
-    POKE VL+10,4 : POKE VL+11,127: rem sprite 2 pos (4 + 255)
+    POKE VL,84 : POKE VL+1,88: rem sprite 0 pos
+    POKE VL+2,84 : POKE VL+3,130: rem sprite 0 pos
+    POKE VL+4,172 : POKE VL+5,88: rem sprite 1 pos
+    POKE VL+6,172 : POKE VL+7,130: rem sprite 1 pos
+    POKE VL+8,4 : POKE VL+9,88: rem sprite 2 pos (4 + 255)
+    POKE VL+10,4 : POKE VL+11,130: rem sprite 2 pos (4 + 255)
     RETURN
 #---------------------
 
@@ -313,6 +307,12 @@ Print_Machine:
     PRINT "   {98}          {98}          {98}          {98}"
     PRINT "   {98}          {98}          {98}          {98}"
     PRINT "   {98}          {98}          {98}          {98}"
+    PRINT "   {98}          {98}          {98}          {98}"
+    PRINT "   {98}          {98}          {98}          {98}"
+    PRINT "   {98}          {98}          {98}          {98}"
+    PRINT "   {98}          {98}          {98}          {98}"
+    PRINT "   {98}          {98}          {98}          {98}"
+    PRINT "   {98}          {98}          {98}          {98}"
     PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
     PRINT
 Print_Status_Strip_Border:
@@ -320,7 +320,6 @@ Print_Status_Strip_Border:
     PRINT "   {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}"
     PRINT
     PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
-    PRINT
 Print_Prizes_Text:
     REM Print Prizes Text - Tab not available because of column width
     SS$ = "    WIN WIN - : 2X  " + FR$(0,0)
@@ -353,7 +352,6 @@ Print_Prizes_Text:
 
 Print_Prizes_Text__Next:
     NEXT I
-    PRINT
 
     GOSUB Print_Instructions : REM Print Instructions
 
@@ -422,7 +420,7 @@ Game_Loop__Continue:
     SS$ = "GAME OVER"
     GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
 
-    XP% = 0 : YP% = 20 : GOSUB Set_Cursor_Position
+    XP% = 0 : YP% = 24 : GOSUB Set_Cursor_Position
     GOSUB Print_Instructions
     GOTO Get_User_Instruction
 
