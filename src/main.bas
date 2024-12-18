@@ -1,10 +1,13 @@
 REM Set VIC Bank 2
 POKE 56578,PEEK(56578) OR 3 : REM Allow writing to PORT A
 POKE 56576,(PEEK(56576) AND 252) or 1 : REM Set PORT A serial bus access to VIC Bank 2
-POKE 53272,4 : REM Set pointer of bitmap memory to $2000-$27FF / 8192-10239
+POKE 53272,4 : REM Set pointer of character memory to $2000-$27FF / 8192-10239
 POKE 648,128 : REM High byte of pointer to screen memory for screen input/output
 REM 128 * 256 = 32768, which is the start of Bank 2
 rem -----
+REM Reduce Basic RAM Size
+POKE 55,255 : POKE 56,127 : CLR : REM Set end to $7FFF
+
 
 GOTO Title_Screen
 
@@ -14,7 +17,7 @@ Wait_Title:
 
 Get_User_Instruction:
 Check_String_Variable_Pointer:
-    IF PEEK(52) <= 144 THEN POKE 52,150 : REM Limit Growth of string variable pointer
+    IF PEEK(52) <= 112 THEN POKE 52,120 : REM Limit Growth of string variable pointer
 
     GET K$ : REM Get Keyboard Key
     REM Next instruction based on key press
@@ -320,7 +323,6 @@ Print_Status_Strip_Border:
     PRINT
     PRINT "{173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}";
     PRINT
-    PRINT "   {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
 
     GOSUB Print_Instructions : REM Print Instructions
 
@@ -528,4 +530,3 @@ Sprite_Data:
     data 48,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0
     data 0,0,0,0,0,12,0,0,15,0,0,12,0,0,20,0
     data 0,85,0,1,85,64,1,85,192,5,87,0,5,92,0,128
-#    # PRINT PEEK(47)+256*PEEK(48)
