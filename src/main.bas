@@ -19,6 +19,7 @@ Get_User_Instruction:
 Check_String_Variable_Pointer:
     IF PEEK(52) <= 112 THEN POKE 52,120 : REM Limit Growth of string variable pointer
 
+    POKE 649,1 : REM Set keyboard buffer size to 1
     GET K$ : REM Get Keyboard Key
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
@@ -249,7 +250,9 @@ Initialise_Sprites:
 Initialise_Program:
     REM Initialise Program
     CLR
-    
+    POKE 198,0 : REM Clear keyboard Buffer
+    POKE 649,1 : REM Set keyboard buffer size to 1
+    POKE 650,PEEK(650) AND 63 : REM Disable Key repeat
 
 Initialise_Fruits:
     DIM FR$(6,1):REM Define Fruits array
@@ -419,6 +422,9 @@ Increase_Decrease_Bet__Continue:
 #---------------------
 
 Play_Next_Credit:
+    POKE 649,0 : REM Set keyboard buffer size to 0 (disable keyboard)
+    POKE 198,0 : REM Clear keyboard Buffer
+
     REM Deduct credit and play again
     IF CR >= BT% THEN Play_Next_Credit__Deduct_Bet
     CR = 0
