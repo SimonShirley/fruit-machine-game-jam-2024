@@ -23,6 +23,9 @@ Check_String_Variable_Pointer:
     GET K$ : REM Get Keyboard Key
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
+    IF CR > 0 AND HA% = 1 AND K$ = "1" THEN HR%(0) = NOT HR%(0) : GOSUB Print_Hold_Strip
+    IF CR > 0 AND HA% = 1 AND K$ = "2" THEN HR%(1) = NOT HR%(1) : GOSUB Print_Hold_Strip
+    IF CR > 0 AND HA% = 1 AND K$ = "3" THEN HR%(2) = NOT HR%(2) : GOSUB Print_Hold_Strip
     IF CR > 0 AND (K$ = "-" OR K$ = "_") THEN Decrease_Bet : REM Decrease Bet
     IF CR > 0 AND (K$ = "+" OR K$ = "=") THEN Increase_Bet : REM Increase Bet
     IF CR > 0 AND K$ = "S" THEN Play_Next_Credit : REM Play Next Credit
@@ -36,6 +39,14 @@ Set_Cursor_Position:
     POKE 781,YP% : POKE 782,XP% : POKE 783,0 : SYS 65520
     RETURN
 #---------------------
+
+Reset_Holds:
+    REM Reset Holds
+    HA% = 0
+    FOR I = 0 TO 2 : HR%(I) = 0 : NEXT : REM Reset Holds
+
+    GOSUB Print_Hold_Strip
+    RETURN
 
 Format_Credit_String:
     REM Print Credits
@@ -138,7 +149,7 @@ Print_Win_Strip_Text__Centre_Text:
     GOSUB Centre_Text
 
 Print_Win_Strip_Text__Continue:
-    XP% = 5 : YP% = 18 : GOSUB Set_Cursor_Position
+    XP% = 5 : YP% = 20 : GOSUB Set_Cursor_Position
     GOSUB Print_Strip_Text
     RETURN
 #---------------------
@@ -182,6 +193,24 @@ Print_Strip_Text:
     PRINT SS$;
     RETURN
 #---------------------
+
+Print_Hold_Strip:
+    XP% = 2 : YP% = 17 : GOSUB Set_Cursor_Position
+    PRINT "                ";
+
+    IF HA% <> 1 THEN RETURN
+
+    HT$ = "" : REM Reset Hold String
+
+    FOR HI = 0 TO 2
+    IF HR%(HI) = -1 THEN HT$ = HT$ + "{lightgreen}HOLD  " : GOTO Print_Hold_Strip__Next
+    HT$ = HT$ + "{white}HOLD  "
+Print_Hold_Strip__Next:
+    NEXT HI
+    
+    XP% = 2 : YP% = 17 : GOSUB Set_Cursor_Position
+    PRINT HT$ + "{white}"
+    RETURN
 
 Play_Sound:
     POKE SR + 4, 33 : REM GATE(1) + SAWTOOTH(32)
@@ -253,6 +282,8 @@ Initialise_Program:
     POKE 649,1 : REM Set keyboard buffer size to 1
     POKE 650,PEEK(650) AND 63 : REM Disable Key repeat
 
+    DIM HR%(2) : REM Hold Reels Array
+
 Initialise_Fruits:
     DIM FR$(6,1):REM Define Fruits array
     REM Fruit name, win multiplier
@@ -283,6 +314,7 @@ Initialise_Notes:
 
 Restart:
     POKE VL+21,0 : rem set all sprites invisible
+    XP% = 0 : YP% = 0 : GOSUB Set_Cursor_Position
     PRINT "{clr}{white}"; : REM Clear screen and set the text to white
     POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
     RD% = INT(RND(-TI)) : REM Re-randomise the random seed    
@@ -317,6 +349,8 @@ Print_Machine:
     PRINT "{98}     {98}     {98}     {98}                     ";
     PRINT "{173}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{189}  {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}";
     PRINT
+    PRINT : REM Space for Holds
+    PRINT
 Print_Status_Strip_Border:
     REM Print Status Strip Borders
     PRINT "{176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}";
@@ -335,6 +369,7 @@ Start_With_Random_Reels:
 #---------------------
     GOSUB Print_Bet_Strip_Text : REM Print Bet Strip Text
     GOSUB Print_Credit_Strip_Text : REM Print Credit Strip Text
+    GOSUB Reset_Holds : REM Reset Holds
     GOTO Get_User_Instruction : REM Get User Input
 #---------------------
 
@@ -350,10 +385,19 @@ Get_Reels:
 
     FOR RI=1 TO 24
     REM Reels will spin for at least 12 counts
+Get_Reels__Try_Reel_1:
+    IF HA% = 1 AND HR%(0) = -1 THEN Get_Reels__Try_Reel_2
     IF RI < (12 + R1%) THEN R1 = (R1 - 1) AND 15
+
+Get_Reels__Try_Reel_2:
+    IF HA% = 1 AND HR%(1) = -1 THEN Get_Reels__Try_Reel_3
     IF RI < (16 + R2%) THEN R2 = (R2 - 1) AND 15
+
+Get_Reels__Try_Reel_3:
+    IF HA% = 1 AND HR%(2) = -1 THEN Get_Reels__Set_Reel_Sprites
     IF RI < (20 + R3%) THEN R3 = (R3 - 1) AND 15
     
+Get_Reels__Set_Reel_Sprites:
     POKE SP + 0, SL + SO%(R1) : POKE SP + 1, SL + SO%(R1+1)
     POKE SP + 2, SL + SO%(R2) : POKE SP + 3, SL + SO%(R2+1)
     POKE SP + 4, SL + SO%(R3) : POKE SP + 5, SL + SO%(R3+1)
@@ -388,13 +432,20 @@ Get_Reels__Next:
 Game_Loop__Continue:
     IF CR <= 0 THEN Game_Over
 
+    GOSUB Reset_Holds
+    RD% = INT(RND(1) * 5) : REM Get Hold Chance 40%
+    IF RD% >= 3 THEN HA% = 1
+
+    GOSUB Print_Hold_Strip
     GOTO Get_User_Instruction
 
 Game_Over:
+    GOSUB Reset_Holds : REM Reset Holds
+
     SS$ = "GAME OVER"
     GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
 
-    XP% = 0 : YP% = 21 : GOSUB Set_Cursor_Position
+    XP% = 0 : YP% = 23 : GOSUB Set_Cursor_Position
     GOSUB Print_Instructions
     GOTO Get_User_Instruction
 
