@@ -13,7 +13,7 @@ GOTO Title_Screen
 
 Wait_Title:
     GET K$ : IF K$ <> "S" THEN Wait_Title
-    GOTO Initialise_Credits
+    GOTO Restart
 
 Get_User_Instruction:
 Check_String_Variable_Pointer:
@@ -26,14 +26,14 @@ Check_String_Variable_Pointer:
     IF CR > 0 AND (K$ = "-" OR K$ = "_") THEN Decrease_Bet : REM Decrease Bet
     IF CR > 0 AND (K$ = "+" OR K$ = "=") THEN Increase_Bet : REM Increase Bet
     IF CR > 0 AND K$ = "S" THEN Play_Next_Credit : REM Play Next Credit
-    IF CR <= 0 AND K$ = "P" THEN Initialise_Credits : REM Initialise Credits
+    IF CR <= 0 AND K$ = "P" THEN Restart : REM Restart
     IF CR <= 0 AND GC < 150 THEN GC = GC + 1 : REM GC = Game over timer counter
     IF GC >= 150 THEN Title_Screen
     GOTO Get_User_Instruction : REM Get Keyboard Key
 
 Set_Cursor_Position:
     REM Set Cursor Position to X=XP%, Y=YP% : Clear Flags : CALL PLOT kernal routine
-    POKE 781,YP%:POKE 782,XP%:POKE 783,0: SYS 65520
+    POKE 781,YP% : POKE 782,XP% : POKE 783,0 : SYS 65520
     RETURN
 #---------------------
 
@@ -227,7 +227,6 @@ Initialise_Sprites:
     VR = 32768
     SP = VR + 1016 : REM Base Sprite Pointer Address Location
     
-
     POKE VL+37,10 : POKE VL+38,2: rem multicolors 1 & 2
     POKE VL+21,0 : rem set all sprites invisible
     POKE VL+27,255 : REM Set sprites behind characters
@@ -282,18 +281,17 @@ Initialise_Notes:
     GOSUB Initialise_Sprites : REM Initialise Sprites
     GOTO Wait_Title
 
+Restart:
+    POKE VL+21,0 : rem set all sprites invisible
+    PRINT "{clr}{white}"; : REM Clear screen and set the text to white
+    POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
+    RD% = INT(RND(-TI)) : REM Re-randomise the random seed    
+    GC = 0 : REM GC = Game over timer counter
 Initialise_Credits:
     REM Initialise Credits
     BT% = 10 : REM Initial Bet : BT% stores bet count
     IC = 100 : REM IC = Initial Credits
     CR = IC : REM CR = Credits
-
-Restart:
-    PRINT "{clr}{white}"; : REM Clear screen and set the text to white
-    POKE 53280,0 : POKE 53281,0 : REM Set border and background to black
-    RD% = INT(RND(-TI)) : REM Re-randomise the random seed
-    POKE VL+21,0 : rem set all sprites invisible
-    GC = 0 : REM GC = Game over timer counter    
 Initialise_Sound:
     SR = 54272 : REM SID BASE ADDRESS
     FOR I = SR TO SR + 24 : POKE I,0 : NEXT : REM Reset SID
@@ -388,8 +386,11 @@ Get_Reels__Next:
     GOSUB Print_Bet_Strip_Text
 
 Game_Loop__Continue:
-    IF CR > 0 THEN Get_User_Instruction
+    IF CR <= 0 THEN Game_Over
 
+    GOTO Get_User_Instruction
+
+Game_Over:
     SS$ = "GAME OVER"
     GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
 
