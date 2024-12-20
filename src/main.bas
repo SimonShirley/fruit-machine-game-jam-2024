@@ -23,9 +23,9 @@ Check_String_Variable_Pointer:
     GET K$ : REM Get Keyboard Key
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
-    IF CR > 0 AND HA% = 1 AND K$ = "1" THEN HR%(0) = NOT HR%(0) : GOSUB Print_Hold_Strip
-    IF CR > 0 AND HA% = 1 AND K$ = "2" THEN HR%(1) = NOT HR%(1) : GOSUB Print_Hold_Strip
-    IF CR > 0 AND HA% = 1 AND K$ = "3" THEN HR%(2) = NOT HR%(2) : GOSUB Print_Hold_Strip
+    IF CR > 0 AND HA% = 1 AND K$ = "1" THEN HR%(0) = NOT HR%(0) : GOSUB Print_Hold_Strip_1
+    IF CR > 0 AND HA% = 1 AND K$ = "2" THEN HR%(1) = NOT HR%(1) : GOSUB Print_Hold_Strip_2
+    IF CR > 0 AND HA% = 1 AND K$ = "3" THEN HR%(2) = NOT HR%(2) : GOSUB Print_Hold_Strip_3
     IF CR > 0 AND (K$ = "-" OR K$ = "_") THEN Decrease_Bet : REM Decrease Bet
     IF CR > 0 AND (K$ = "+" OR K$ = "=") THEN Increase_Bet : REM Increase Bet
     IF CR > 0 AND K$ = "S" THEN Play_Next_Credit : REM Play Next Credit
@@ -45,7 +45,7 @@ Reset_Holds:
     HA% = 0
     FOR I = 0 TO 2 : HR%(I) = 0 : NEXT : REM Reset Holds
 
-    GOSUB Print_Hold_Strip
+    GOSUB Print_Hold_Strip_Blank
     RETURN
 
 Format_Credit_String:
@@ -194,22 +194,32 @@ Print_Strip_Text:
     RETURN
 #---------------------
 
-Print_Hold_Strip:
+Print_Hold_Strip_Blank:
+    XP% = 0 : YP% = 17 : GOSUB Set_Cursor_Position
+    PRINT "{171}     {123}     {123}     {179}                    ";
+    RETURN
+
+Print_Hold_Strip_1:
     XP% = 2 : YP% = 17 : GOSUB Set_Cursor_Position
-    PRINT "                ";
+    IF HR%(0) = -1 THEN PRINT "{lightgreen}{rvs on} 1 {rvs off}{white}" : RETURN
+    PRINT "{light-red}{rvs on} 1 {rvs off}{white}"
+    RETURN
 
-    IF HA% <> 1 THEN RETURN
+Print_Hold_Strip_2:
+    XP% = 8 : YP% = 17 : GOSUB Set_Cursor_Position
+    IF HR%(1) = -1 THEN PRINT "{lightgreen}{rvs on} 2 {rvs off}{white}" : RETURN
+    PRINT "{light-red}{rvs on} 2 {rvs off}{white}"
+    RETURN
 
-    HT$ = "" : REM Reset Hold String
+Print_Hold_Strip_3:
+    XP% = 14 : YP% = 17 : GOSUB Set_Cursor_Position
+    IF HR%(2) = -1 THEN PRINT "{lightgreen}{rvs on} 3 {rvs off}{white}" : RETURN
+    PRINT "{light-red}{rvs on} 3 {rvs off}{white}"
+    RETURN
 
-    FOR HI = 0 TO 2
-    IF HR%(HI) = -1 THEN HT$ = HT$ + "{lightgreen}HOLD  " : GOTO Print_Hold_Strip__Next
-    HT$ = HT$ + "{white}HOLD  "
-Print_Hold_Strip__Next:
-    NEXT HI
-    
-    XP% = 2 : YP% = 17 : GOSUB Set_Cursor_Position
-    PRINT HT$ + "{white}"
+Print_Holds_Available:
+    XP% = 22 : YP% = 17 : GOSUB Set_Cursor_Position
+    PRINT "< HOLDS AVAILABLE"
     RETURN
 
 Play_Sound:
@@ -349,7 +359,7 @@ Print_Machine:
     PRINT "{98}     {98}     {98}     {98}                     ";
     PRINT "{173}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{177}{99}{99}{99}{99}{99}{189}  {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}";
     PRINT
-    PRINT : REM Space for Holds
+    PRINT "{171}     {123}     {123}     {179}"
     PRINT
 Print_Status_Strip_Border:
     REM Print Status Strip Borders
@@ -437,9 +447,14 @@ Game_Loop__Continue:
 
     GOSUB Reset_Holds
     RD% = INT(RND(1) * 5) : REM Get Hold Chance 40%
+    
     IF RD% >= 3 THEN HA% = 1
+    IF HA% = 0 THEN GOSUB Reset_Holds : GOTO Get_User_Instruction
 
-    GOSUB Print_Hold_Strip
+    GOSUB Print_Holds_Available
+    GOSUB Print_Hold_Strip_1
+    GOSUB Print_Hold_Strip_2
+    GOSUB Print_Hold_Strip_3
     GOTO Get_User_Instruction
 
 Game_Over:
