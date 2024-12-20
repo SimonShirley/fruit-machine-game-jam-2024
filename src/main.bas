@@ -383,27 +383,29 @@ Get_Reels:
     R1% = INT(RND(1) * 4) : R2% = INT(RND(1) * 4) : R3% = INT(RND(1) * 4)
     NEXT RI
 
+    REM Spin Reels - Reels will spin for at least 12 counts
     FOR RI=1 TO 24
-    REM Reels will spin for at least 12 counts
+    RM = 0 : REM Reels need to move - 0 = no, 1 = yes    
+
 Get_Reels__Try_Reel_1:
-    IF HA% = 1 AND HR%(0) = -1 THEN Get_Reels__Try_Reel_2
-    IF RI < (12 + R1%) THEN R1 = (R1 - 1) AND 15
+    IF HR%(0) = -1 OR RI >= (12 + R1%) THEN Get_Reels__Try_Reel_2
+    R1 = (R1 - 1) AND 15 : RM = 1 : REM Move Reel
+    POKE SP + 0, SL + SO%(R1) : POKE SP + 1, SL + SO%(R1+1) : REM Update Sprites
 
 Get_Reels__Try_Reel_2:
-    IF HA% = 1 AND HR%(1) = -1 THEN Get_Reels__Try_Reel_3
-    IF RI < (16 + R2%) THEN R2 = (R2 - 1) AND 15
+    IF HR%(1) = -1 OR RI >= (16 + R2%) THEN Get_Reels__Try_Reel_3
+    R2 = (R2 - 1) AND 15 : RM = 1 : REM Move Reel
+    POKE SP + 2, SL + SO%(R2) : POKE SP + 3, SL + SO%(R2+1) : REM Update Sprites
 
 Get_Reels__Try_Reel_3:
-    IF HA% = 1 AND HR%(2) = -1 THEN Get_Reels__Set_Reel_Sprites
-    IF RI < (20 + R3%) THEN R3 = (R3 - 1) AND 15
-    
-Get_Reels__Set_Reel_Sprites:
-    POKE SP + 0, SL + SO%(R1) : POKE SP + 1, SL + SO%(R1+1)
-    POKE SP + 2, SL + SO%(R2) : POKE SP + 3, SL + SO%(R2+1)
-    POKE SP + 4, SL + SO%(R3) : POKE SP + 5, SL + SO%(R3+1)
+    IF HR%(2) = -1 OR RI >= (20 + R3%) THEN Get_Reels__Continue
+    R3 = (R3 - 1) AND 15 : RM = 1 : REM Move Reel
+    POKE SP + 4, SL + SO%(R3) : POKE SP + 5, SL + SO%(R3+1) : REM Update Sprites
 
-    REM only play click sound if reels are still spinning
-    IF RI >= 20 + R3% THEN RI = 99 : GOTO Get_Reels__Next
+Get_Reels__Continue:
+    IF RM = 0 THEN RI = 99 : GOTO Get_Reels__Next : REM Break out of loop
+
+    REM only play click sound if reels are still spinning    
     POKE SR + 1,10 : POKE SR,0 : REM Play Reel Sound Pitch
     POKE SR + 4, 129 : REM GATE(1) + NOISE(128)
     POKE SR + 4, 128 : REM GATE(0) + NOISE(128) : TURN SOUND OFF   
@@ -411,6 +413,7 @@ Get_Reels__Set_Reel_Sprites:
 Get_Reels__Next:
     NEXT RI
 
+Get_Reels__Set_Win_Values:
     REM Get reel symbol value to calculate win
     R1% = RO%(R1 AND 15) : R2% = RO%(R2 AND 15) : R3% = RO%(R3 AND 15)
 
