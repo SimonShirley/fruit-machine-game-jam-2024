@@ -293,6 +293,7 @@ Initialise_Program:
     POKE 650,PEEK(650) AND 63 : REM Disable Key repeat
 
     DIM HR%(2) : REM Hold Reels Array
+    DIM SA%(2) : REM How far each reel needs to spin
 
 Initialise_Fruits:
     DIM FR$(6,1):REM Define Fruits array
@@ -388,39 +389,48 @@ Game_Loop:
 Get_Reels:
     REM Generate Reels
 
-    REM Shake the random numbers a few times and set offsets for the reels
-    FOR RI = 0 TO 4
-    R1% = INT(RND(1) * 4) : R2% = INT(RND(1) * 4) : R3% = INT(RND(1) * 4)
-    NEXT RI
+    REM Set the amount of times to spin the reel
+    FOR RI = 0 TO 2 : SA%(RI) = 12 + (RI * 4) + INT(RND(1) * 4) : NEXT
+
+    REM If a reel is held, set the spin distance to 0
+    FOR RI = 0 TO 2
+    IF HA% AND HR%(RI) THEN SA%(RI) = 0
+    NEXT
+
+    RA% = 0 : REM Max Reel Spin Amount Counter
+    IF SA%(0) > RA% THEN RA% = SA%(0)
+    IF SA%(1) > RA% THEN RA% = SA%(1)
+    IF SA%(2) > RA% THEN RA% = SA%(2)
+
+    IF RA% <= 0 THEN Get_Reels__Set_Win_Values
 
     REM Spin Reels - Reels will spin for at least 12 counts
-    FOR RI=1 TO 24
-    RM = 0 : REM Reels need to move - 0 = no, 1 = yes    
+    FOR RI=1 TO RA%
 
 Get_Reels__Try_Reel_1:
-    IF HR%(0) OR RI >= (12 + R1%) THEN Get_Reels__Try_Reel_2
-    R1 = (R1 - 1) AND 15 : RM = 1 : REM Move Reel
+    IF SA%(0) <= 0 THEN Get_Reels__Try_Reel_2
+    R1 = (R1 - 1) AND 15 : REM Move Reel
     POKE SP + 0, SL + SO%(R1) : POKE SP + 1, SL + SO%(R1+1) : REM Update Sprites
+    SA%(0) = SA%(0) - 1
 
 Get_Reels__Try_Reel_2:
-    IF HR%(1) OR RI >= (16 + R2%) THEN Get_Reels__Try_Reel_3
-    R2 = (R2 - 1) AND 15 : RM = 1 : REM Move Reel
+    IF SA%(1) <= 0 THEN Get_Reels__Try_Reel_3
+    R2 = (R2 - 1) AND 15 : REM Move Reel
     POKE SP + 2, SL + SO%(R2) : POKE SP + 3, SL + SO%(R2+1) : REM Update Sprites
+    SA%(1) = SA%(1) - 1
 
 Get_Reels__Try_Reel_3:
-    IF HR%(2) OR RI >= (20 + R3%) THEN Get_Reels__Continue
-    R3 = (R3 - 1) AND 15 : RM = 1 : REM Move Reel
+    IF SA%(2) <= 0 THEN Get_Reels__Continue
+    R3 = (R3 - 1) AND 15 : REM Move Reel
     POKE SP + 4, SL + SO%(R3) : POKE SP + 5, SL + SO%(R3+1) : REM Update Sprites
+    SA%(2) = SA%(2) - 1
 
 Get_Reels__Continue:
-    IF RM = 0 THEN RI = 99 : GOTO Get_Reels__Next : REM Break out of loop
-
     REM only play click sound if reels are still spinning    
     POKE SR + 1,10 : POKE SR,0 : REM Play Reel Sound Pitch
     POKE SR + 4, 129 : REM GATE(1) + NOISE(128)
     POKE SR + 4, 128 : REM GATE(0) + NOISE(128) : TURN SOUND OFF   
 
-Get_Reels__Next:
     NEXT RI
 
 Get_Reels__Set_Win_Values:
