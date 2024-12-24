@@ -75,40 +75,16 @@ Format_Credit_String__Set_Trailing_Zero:
     RETURN
 #---------------------
 
-Centre_Text:
-    REM Calculate padding spaces for centring
-    REM LN% = Available Space Length
-
-    REM Check string length and return if too long
-    IF LEN(SS$) >= LN% THEN RETURN
-
-    J = INT((LN% - LEN(SS$)) / 2)
-    J = J - (J - INT(J/2) * 2) : REM Subtract 1 if J is odd - MOD Function
-
-    FOR I = 1 TO J : REM 1 TO Number of Spaces Required
-    SS$ = " " + SS$
-    NEXT I
-
-    REM Check string length and return if too long
-    IF LEN(SS$) >= LN% THEN RETURN
-
-    FOR I = LEN(SS$) TO LN% - 1
-    SS$ = SS$ + " "
-    NEXT I
-
-    RETURN
-#---------------------
-
 Print_Instructions:
     REM Print Instructions with no credits
     IF CR > 0 THEN Print_Instructions__In_Credit
-    PRINT "   [ P ] PLAY AGAIN   [ Q ] QUIT      ";
+    PRINT OS$(3,0);
     RETURN
 #---------------------
 
 Print_Instructions__In_Credit:
     REM Print Instructions when in credit
-    PRINT "   [ S ] Spin  [+/-] BET  [ Q ] QUIT  ";
+    PRINT OS$(2,0);
     RETURN
 #---------------------
 
@@ -117,10 +93,7 @@ Full_Win:
     WI = (VAL(FR$(R1%,1)) * BT%) : REM WI = Winning amount
     CR = CR + WI
 
-    CV = WI : REM Set credit value for internal processing
-    GOSUB Format_Credit_String : REM Print Credits
-
-    SS$ = FR$(R1%,0) + " WIN - YOU WIN: {92}" + CV$
+    REM Win amount string now handled in Print_Win_Stip_Text sub
     GOSUB Play_Full_Win_Sound : REM Play Full Win Sound
     RETURN
 #---------------------
@@ -130,38 +103,51 @@ Half_Win:
     WI = BT% * 2 : REM WI = Winning amount
     CR = CR + WI
     
-    CV = WI : REM Set credit value for internal processing
-    GOSUB Format_Credit_String : REM Print Credits
-
-    SS$ = "HALF WIN - YOU WIN: {92}" + CV$ : REM WV$ = Win string
+    REM Win amount string now handled in Print_Win_Stip_Text sub
     GOSUB Play_Half_Win_Sound : REM Play Half Win Sound
     RETURN
 #---------------------
 
 Print_Win_Strip_Text:
     REM Print Win Strip Text
-    IF LEN(SS$) > 0 THEN Print_Win_Strip_Text__Centre_Text
-    SS$ = "                              "
-    GOTO Print_Win_Strip_Text__Continue
-
-Print_Win_Strip_Text__Centre_Text:
-    LN% = 30
-    GOSUB Centre_Text
-
-Print_Win_Strip_Text__Continue:
+    REM Requires Fruit offset, FR. -1 for not a fruit
+    REM Requires WS index (to display WS$ value)
     XP% = 5 : YP% = 20 : GOSUB Set_Cursor_Position
-    GOSUB Print_Strip_Text
-    RETURN
+    PRINT WS$(0,0); : REM Blank Line
+
+    REM Line already blank, so no point printing another
+    IF WS = 0 THEN RETURN
+
+    XP% = 5 + VAL(WS$(WS,1)) : REM X Pos + Left Offset
+    YP% = 20 : GOSUB Set_Cursor_Position
+
+    IF WS = 1 THEN Print_Win_Strip_Text__WS1
+    IF WS = 2 THEN Print_Win_Strip_Text__WS2
+    GOTO Print_Win_Strip_Text__Print
+
+Print_Win_Strip_Text__WS1:
+    IF FR < 0 THEN Print_Win_Strip_Text__Print
+    REM Print Win Strip Lookup Value
+    CV = BT% * VAL(FR$(FR,1)) : GOSUB Format_Credit_String
+
+    REM New X Pos + Fruit Text Offset
+    XP% = XP% + VAL(FR$(FR,2))
+
+    PRINT FR$(FR,0) + WS$(WS,0) + CV$; : RETURN 
+
+Print_Win_Strip_Text__WS2:
+    CV = BT% * 2 : GOSUB Format_Credit_String
+    PRINT WS$(2,0) + CV$ : RETURN
+
+Print_Win_Strip_Text__Print:
+    PRINT WS$(WS,0) : RETURN
 #---------------------
 
 Print_Bet_Strip_Text:
     REM Print Credit Strip Text
-    CV = BT% : REM Set credit value for internal processing
-    GOSUB Format_Credit_String : REM Print Credits
-    SS$ = "{92}" + CV$
-
-    XP% = 10 : YP% = 1 : GOSUB Set_Cursor_Position
-    GOSUB Print_Strip_Text
+    CV = BT% / 10 : REM Set credit value for internal processing
+    XP% = 11 : YP% = 1 : GOSUB Set_Cursor_Position
+    PRINT CA$(CV);
     RETURN
 #---------------------
 
@@ -196,30 +182,30 @@ Print_Strip_Text:
 
 Print_Hold_Strip_Blank:
     XP% = 0 : YP% = 17 : GOSUB Set_Cursor_Position
-    PRINT "{171}     {123}     {123}     {179}                    ";
+    PRINT HT$(0);
     RETURN
 
 Print_Hold_Strip_1:
     XP% = 2 : YP% = 17 : GOSUB Set_Cursor_Position
-    IF HR%(0) THEN PRINT "{lightgreen}{rvs on} 1 {rvs off}{white}" : RETURN
-    PRINT "{light-red}{rvs on} 1 {rvs off}{white}"
+    IF HR%(0) THEN PRINT HT$(4) : RETURN
+    PRINT HT$(1)
     RETURN
 
 Print_Hold_Strip_2:
     XP% = 8 : YP% = 17 : GOSUB Set_Cursor_Position
-    IF HR%(1) THEN PRINT "{lightgreen}{rvs on} 2 {rvs off}{white}" : RETURN
-    PRINT "{light-red}{rvs on} 2 {rvs off}{white}"
+    IF HR%(1) THEN PRINT HT$(5) : RETURN
+    PRINT HT$(2)
     RETURN
 
 Print_Hold_Strip_3:
     XP% = 14 : YP% = 17 : GOSUB Set_Cursor_Position
-    IF HR%(2) THEN PRINT "{lightgreen}{rvs on} 3 {rvs off}{white}" : RETURN
-    PRINT "{light-red}{rvs on} 3 {rvs off}{white}"
+    IF HR%(2) THEN PRINT HT$(6) : RETURN
+    PRINT HT$(3)
     RETURN
 
 Print_Holds_Available:
     XP% = 22 : YP% = 17 : GOSUB Set_Cursor_Position
-    PRINT "< HOLDS AVAILABLE"
+    PRINT HT$(7)
     RETURN
 
 Play_Sound:
@@ -274,15 +260,15 @@ Initialise_Program:
 #---------------------
 
 Initialise_Fruits:
-    DIM FR$(6,1):REM Define Fruits array
+    DIM FR$(6,2) : REM Define Fruits array
     REM Fruit name, win multiplier
-    FR$(0,0)="CHERRY":FR$(0,1)="3"
-    FR$(1,0)="PEAR"  :FR$(1,1)="5"
-    FR$(2,0)="LEMON" :FR$(2,1)="6"
-    FR$(3,0)="GRAPE" :FR$(3,1)="7"
-    FR$(4,0)="APPLE" :FR$(4,1)="8"
-    FR$(5,0)="SEVEN" :FR$(5,1)="9"
-    FR$(6,0)="BAR"   :FR$(6,1)="10"
+    FR$(0,0)="CHERRY":FR$(0,1)="3" : FR$(0,2) = "0"
+    FR$(1,0)="PEAR"  :FR$(1,1)="5" : FR$(1,2) = "0"
+    FR$(2,0)="LEMON" :FR$(2,1)="6" : FR$(2,2) = "0"
+    FR$(3,0)="GRAPE" :FR$(3,1)="7" : FR$(3,2) = "0"
+    FR$(4,0)="APPLE" :FR$(4,1)="8" : FR$(4,2) = "0"
+    FR$(5,0)="SEVEN" :FR$(5,1)="9" : FR$(5,2) = "0"
+    FR$(6,0)="BAR"   :FR$(6,1)="10": FR$(6,2) = "1"
 
 #---------------------
 
@@ -293,6 +279,37 @@ Intialise_Reel_Order:
     
     DIM SO%(16) : REM Sprite Order, last item repeated
     FOR I = 0 TO 16 : READ Q : SO%(I) = Q : NEXT
+
+#---------------------
+
+Initialise_Strings:
+    DIM WS$(3,1) : REM String, Left padding
+    WS$(0,0) = "                              " : WS$(0,1) = "0"
+    WS$(1,0) = " WIN - YOU WIN: {92}" : WS$(1,1) = "2"
+    WS$(2,0) = "HALF WIN - YOU WIN: {92}" : WS$(2,1) = "2"
+    WS$(3,0) = "GAME OVER" : WS$(3,1) = "11"
+
+    DIM CA$(10) : REM Cash amount strings
+    CA$(0) = "0.00" : CA$(1) = "0.10" : CA$(2) = "0.20"
+    CA$(3) = "0.30" : CA$(4) = "0.40" : CA$(5) = "0.50"
+    CA$(6) = "0.60" : CA$(7) = "0.70" : CA$(8) = "0.80"
+    CA$(9) = "0.90" : CA$(10) = "1.00"
+
+    DIM OS$(4,1) : REM Other Strings
+    OS$(0,0) = "    " : OS$(0,1) = "0" : REM Bet 4 - X.XX
+    OS$(1,0) = "      " : OS$(1,1) = "0" : REM Credit 6 = XXX.XX
+    OS$(2,0) = "   [ S ] Spin  [+/-] BET  [ Q ] QUIT  " : OS$(2,1) = "0"
+    OS$(3,0) = "   [ P ] PLAY AGAIN   [ Q ] QUIT      " : OS$(3,1) = "0"
+
+    DIM HT$(7) : REM Hold Text
+    HT$(0) = "{171}     {123}     {123}     {179}                    "
+    HT$(1) = "{light-red}{rvs on} 1 {rvs off}{white}"
+    HT$(2) = "{light-red}{rvs on} 2 {rvs off}{white}"
+    HT$(3) = "{light-red}{rvs on} 3 {rvs off}{white}"
+    HT$(4) = "{lightgreen}{rvs on} 1 {rvs off}{white}"
+    HT$(5) = "{lightgreen}{rvs on} 2 {rvs off}{white}"
+    HT$(6) = "{lightgreen}{rvs on} 3 {rvs off}{white}"
+    HT$(7) = "< HOLDS AVAILABLE"
 
 #---------------------
 
@@ -357,7 +374,7 @@ Initialise_Sound:
 Print_Bet_Credit_Strip_Border:
     REM Print Bet and Credit Strip Borders
     PRINT "{176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}  {176}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{174}";
-    PRINT "    BET:               Credit:"
+    PRINT "    BET:  {92}            Credit:"
     PRINT "{173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}  {173}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{99}{189}"
 Print_Machine:
     REM Print Machine Graphics
@@ -399,8 +416,9 @@ Start_With_Random_Reels:
 #---------------------
 
 Game_Loop:
-    SS$ = "" : GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
 Get_Reels:
+    WS = 0 : FR = -1 : GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
+
     REM Generate Reels
 
     REM Set the amount of times to spin the reel
@@ -455,8 +473,8 @@ Get_Reels__Set_Win_Values:
 #---------------
 
     REM Check for Win
-    IF R1% = R2% AND R2% = R3% THEN GOSUB Full_Win
-    IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win
+    IF R1% = R2% AND R2% = R3% THEN GOSUB Full_Win : FR = R1% : WS = 1
+    IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win : FR = R1% : WS = 2
     
     GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
     GOSUB Print_Credit_Strip_Text : REM Print Credit Strip Text
@@ -484,8 +502,7 @@ Game_Loop__Continue:
 Game_Over:
     GOSUB Reset_Holds : REM Reset Holds
 
-    SS$ = "GAME OVER"
-    GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
+    WS = 3 : FR = -1 : GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
 
     XP% = 0 : YP% = 23 : GOSUB Set_Cursor_Position
     GOSUB Print_Instructions
