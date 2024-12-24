@@ -52,14 +52,6 @@ Set_Cursor_Position:
     RETURN
 #---------------------
 
-Reset_Holds:
-    REM Reset Holds
-    HA% = 0
-    FOR I = 0 TO 2 : HR%(I) = 0 : NEXT : REM Reset Holds
-
-    GOSUB Print_Hold_Strip_Blank
-    RETURN
-
 Format_Credit_String:
     REM Print Credits
     REM CV is the passed in value for processing
@@ -191,6 +183,29 @@ Print_Strip_Text:
     PRINT SS$;
     RETURN
 #---------------------
+
+Holds:
+    REM Holds
+    GOSUB Reset_Holds
+    RD% = INT(RND(1) * 5) : REM Get Hold Chance 40%
+    
+    IF RD% >= 3 THEN HA% = -1 : REM Enable Holds
+    IF NOT HA% THEN RETURN
+
+    GOSUB Print_Holds_Available
+    GOSUB Print_Hold_Strip_1
+    GOSUB Print_Hold_Strip_2
+    GOSUB Print_Hold_Strip_3
+
+    RETURN
+
+Reset_Holds:
+    REM Reset Holds
+    HA% = 0
+    FOR I = 0 TO 2 : HR%(I) = 0 : NEXT : REM Reset Holds
+
+    GOSUB Print_Hold_Strip_Blank
+    RETURN
 
 Print_Hold_Strip_Blank:
     XP% = 0 : YP% = 17 : GOSUB Set_Cursor_Position
@@ -513,16 +528,7 @@ Get_Reels__Set_Win_Values:
 Game_Loop__Continue:
     IF CR <= 0 THEN Game_Over
 
-    GOSUB Reset_Holds
-    RD% = INT(RND(1) * 5) : REM Get Hold Chance 40%
-    
-    IF WS <> 1 AND RD% >= 3 THEN HA% = -1 : REM Enable Holds
-    IF NOT HA% THEN Get_User_Instruction
-
-    GOSUB Print_Holds_Available
-    GOSUB Print_Hold_Strip_1
-    GOSUB Print_Hold_Strip_2
-    GOSUB Print_Hold_Strip_3
+    IF WS <> 1 THEN GOSUB Holds
     GOTO Get_User_Instruction
 
 Game_Over:
@@ -533,6 +539,8 @@ Game_Over:
     XP% = 0 : YP% = 23 : GOSUB Set_Cursor_Position
     GOSUB Print_Instructions
     GOTO Get_User_Instruction
+
+
 
 #---------------------
 
