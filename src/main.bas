@@ -509,7 +509,7 @@ Game_Loop__Continue:
     RD% = INT(RND(1) * 5) : REM Get Hold Chance 40%
     
     IF WS <> 1 AND RD% >= 3 THEN HA% = -1 : REM Enable Holds
-    IF NOT HA% THEN GOSUB Reset_Holds : GOTO Get_User_Instruction
+    IF NOT HA% THEN Get_User_Instruction
 
     GOSUB Print_Holds_Available
     GOSUB Print_Hold_Strip_1
