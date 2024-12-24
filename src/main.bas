@@ -23,18 +23,26 @@ Check_String_Variable_Pointer:
 
     POKE 649,1 : REM Set keyboard buffer size to 1
     GET K$ : REM Get Keyboard Key
+
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
-    IF CR > 0 AND HA% AND K$ = "1" THEN HR%(0) = NOT HR%(0) : GOSUB Print_Hold_Strip_1
-    IF CR > 0 AND HA% AND K$ = "2" THEN HR%(1) = NOT HR%(1) : GOSUB Print_Hold_Strip_2
-    IF CR > 0 AND HA% AND K$ = "3" THEN HR%(2) = NOT HR%(2) : GOSUB Print_Hold_Strip_3
-    IF CR > 0 AND (K$ = "-" OR K$ = "_") THEN Decrease_Bet : REM Decrease Bet
-    IF CR > 0 AND (K$ = "+" OR K$ = "=") THEN Increase_Bet : REM Increase Bet
-    IF CR > 0 AND K$ = "S" THEN Play_Next_Credit : REM Play Next Credit
-    IF CR <= 0 AND K$ = "P" THEN Restart : REM Restart
-    IF CR <= 0 AND GC < 150 THEN GC = GC + 1 : REM GC = Game over timer counter
-    IF GC >= 150 THEN Title_Screen
+
+    IF CR <= 0 Then Get_User_Instruction__Credit_Less_Equal_Zero
+
+    IF HA% AND K$ = "1" THEN HR%(0) = NOT HR%(0) : GOSUB Print_Hold_Strip_1
+    IF HA% AND K$ = "2" THEN HR%(1) = NOT HR%(1) : GOSUB Print_Hold_Strip_2
+    IF HA% AND K$ = "3" THEN HR%(2) = NOT HR%(2) : GOSUB Print_Hold_Strip_3
+    IF K$ = "-" OR K$ = "_" THEN Decrease_Bet : REM Decrease Bet
+    IF K$ = "+" OR K$ = "=" THEN Increase_Bet : REM Increase Bet
+    IF K$ = "S" THEN Play_Next_Credit : REM Play Next Credit
     GOTO Get_User_Instruction : REM Get Keyboard Key
+
+Get_User_Instruction__Credit_Less_Equal_Zero:
+    IF K$ = "P" THEN Restart : REM Restart
+    IF GC >= 150 THEN Title_Screen
+    GC = GC + 1 : REM GC = Game over timer counter
+    GOTO Get_User_Instruction : REM Get Keyboard Key
+    
 
 Set_Cursor_Position:
     REM Set Cursor Position to X=XP%, Y=YP%
