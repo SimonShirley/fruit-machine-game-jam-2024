@@ -259,6 +259,51 @@ Play_Full_Win_Sound:
     RETURN
 #---------------------
 
+
+Initialise_Program:
+    REM Initialise Program
+    POKE 198,0 : REM Clear keyboard Buffer
+    POKE 649,1 : REM Set keyboard buffer size to 1
+    POKE 650,PEEK(650) AND 63 : REM Disable Key repeat
+
+    LD = 0 : REM Loading flag, -1 = Loaded, 0 = Things to Load
+
+    DIM HR%(2) : REM Hold Reels Array
+    DIM SA%(2) : REM How far each reel needs to spin
+
+#---------------------
+
+Initialise_Fruits:
+    DIM FR$(6,1):REM Define Fruits array
+    REM Fruit name, win multiplier
+    FR$(0,0)="CHERRY":FR$(0,1)="3"
+    FR$(1,0)="PEAR"  :FR$(1,1)="5"
+    FR$(2,0)="LEMON" :FR$(2,1)="6"
+    FR$(3,0)="GRAPE" :FR$(3,1)="7"
+    FR$(4,0)="APPLE" :FR$(4,1)="8"
+    FR$(5,0)="SEVEN" :FR$(5,1)="9"
+    FR$(6,0)="BAR"   :FR$(6,1)="10"
+
+#---------------------
+
+Intialise_Reel_Order:
+    RESTORE
+    DIM RO%(15) : REM Reel Order
+    FOR I = 0 TO 15 : READ Q : RO%(I) = Q : NEXT
+    
+    DIM SO%(16) : REM Sprite Order, last item repeated
+    FOR I = 0 TO 16 : READ Q : SO%(I) = Q : NEXT
+
+#---------------------
+
+Initialise_Notes:
+    REM Notes Array
+    DIM NS%(1,1)
+    NS%(0,0) = 35 : NS%(0,1) = 134 : REM C-Sharp (5)
+    NS%(1,0) = 47 : NS%(1,1) = 107 : REM F-Sharp (5)
+
+#---------------------
+
 Initialise_Sprites:
     REM Initialise Sprites
     VL = 53248 : REM Base Vic Address and Sprite Screen Location (X) Y pos = + 1
@@ -282,45 +327,14 @@ Initialise_Sprites:
     POKE VL+6,88 : POKE VL+7,130: rem sprite 1 pos
     POKE VL+8,136 : POKE VL+9,88: rem sprite 2 pos (4 + 255)
     POKE VL+10,136 : POKE VL+11,130: rem sprite 2 pos (4 + 255)
-    RETURN
+
 #---------------------
 
-Initialise_Program:
-    REM Initialise Program
-    CLR
-    POKE 198,0 : REM Clear keyboard Buffer
-    POKE 649,1 : REM Set keyboard buffer size to 1
-    POKE 650,PEEK(650) AND 63 : REM Disable Key repeat
+    LD = -1 : REM Game Defined and loaded
 
-    DIM HR%(2) : REM Hold Reels Array
-    DIM SA%(2) : REM How far each reel needs to spin
+    XP% = 0 : YP% = 21 : GOSUB Set_Cursor_Position
+    PRINT "  {180}        {grey3}- {light-red}PRESS {yellow}S{light-red} TO PLAY {grey3}-{white}       {182}  ";
 
-Initialise_Fruits:
-    DIM FR$(6,1):REM Define Fruits array
-    REM Fruit name, win multiplier
-    FR$(0,0)="CHERRY":FR$(0,1)="3"
-    FR$(1,0)="PEAR"  :FR$(1,1)="5"
-    FR$(2,0)="LEMON" :FR$(2,1)="6"
-    FR$(3,0)="GRAPE" :FR$(3,1)="7"
-    FR$(4,0)="APPLE" :FR$(4,1)="8"
-    FR$(5,0)="SEVEN" :FR$(5,1)="9"
-    FR$(6,0)="BAR"   :FR$(6,1)="10"
-
-Intialise_Reel_Order:
-    RESTORE
-    DIM RO%(15) : REM Reel Order
-    FOR I = 0 TO 15 : READ Q : RO%(I) = Q : NEXT
-    
-    DIM SO%(16) : REM Sprite Order, last item repeated
-    FOR I = 0 TO 16 : READ Q : SO%(I) = Q : NEXT
-
-Initialise_Notes:
-    REM Notes Array
-    DIM NS%(1,1)
-    NS%(0,0) = 35 : NS%(0,1) = 134 : REM C-Sharp (5)
-    NS%(1,0) = 47 : NS%(1,1) = 107 : REM F-Sharp (5)
-
-    GOSUB Initialise_Sprites : REM Initialise Sprites
     GOTO Wait_Title
 
 Restart:
@@ -544,14 +558,25 @@ Title_Screen:
     PRINT "  {180}                                  {182}  ";
     PRINT "  {180}        ALTOFLUFF - 2024{grey3}/{white}25       {182}  ";
     PRINT "  {180}                                  {182}  ";
+    IF LD THEN Title_Screen__Show_Loaded
+Title_Screen__Show_Loading:
+    PRINT "  {180}     {grey3}- LOADING - PLEASE WAIT {grey3}-{white}    {182}  ";
+    GOTO Title_Screen__Continue
+Title_Screen__Show_Loaded:
     PRINT "  {180}        {grey3}- {light-red}PRESS {yellow}S{light-red} TO PLAY {grey3}-{white}       {182}  ";
+Title_Screen__Continue:
     PRINT "  {112}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{185}{111}  ";
     PRINT "                                        ";
     PRINT "                     {grey3}GAME JAM BY RPI{white}";
-    GOTO Initialise_Program : REM Can be readying up the rest of the game while waiting
+
+    IF LD THEN Wait_Title : REM If the game has loaded then wait for user on the title screen
+    GOTO Initialise_Program : REM Ready up the rest of the game while displaying screen to user
+
     
-REM Reel Order
+Define_Reel_Order:
+    REM Reel Order
     DATA 6,0,3,2,1,0,2,4,5,1,3,2,1,0,3,4
+Define_Reel_Sprite_Order:
     DATA 0,1,2,3,4,5,6,7,8,9,10,3,4,5,2,11,0
 Sprite_Data:
     REM Generated with spritemate
