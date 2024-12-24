@@ -1,10 +1,11 @@
 REM Set VIC Bank 2
 POKE 56578,PEEK(56578) OR 3 : REM Allow writing to PORT A
-POKE 56576,(PEEK(56576) AND 252) or 1 : REM Set PORT A serial bus access to VIC Bank 2
-POKE 53272,4 : REM Set pointer of character memory to $2000-$27FF / 8192-10239
-POKE 648,128 : REM High byte of pointer to screen memory for screen input/output
+REM Set PORT A serial bus access to VIC Bank 2
+POKE 56576,(PEEK(56576) AND 252) or 1
+POKE 53272,4:REM Set pointer of character memory to $2000-$27FF / 8192-10239
+POKE 648,128
+REM High byte of pointer to screen memory for screen input/output
 REM 128 * 256 = 32768, which is the start of Bank 2
-rem -----
 REM Reduce Basic RAM Size
 POKE 55,255 : POKE 56,127 : CLR : REM Set end to $7FFF
 
@@ -17,7 +18,8 @@ Wait_Title:
 
 Get_User_Instruction:
 Check_String_Variable_Pointer:
-    IF PEEK(52) <= 112 THEN POKE 52,120 : REM Limit Growth of string variable pointer
+    REM Limit Growth of string variable pointer
+    IF PEEK(52) <= 112 THEN POKE 52,120
 
     POKE 649,1 : REM Set keyboard buffer size to 1
     GET K$ : REM Get Keyboard Key
@@ -35,7 +37,9 @@ Check_String_Variable_Pointer:
     GOTO Get_User_Instruction : REM Get Keyboard Key
 
 Set_Cursor_Position:
-    REM Set Cursor Position to X=XP%, Y=YP% : Clear Flags : CALL PLOT kernal routine
+    REM Set Cursor Position to X=XP%, Y=YP%
+    REM Clear Flags
+    REM CALL PLOT kernal routine
     POKE 781,YP% : POKE 782,XP% : POKE 783,0 : SYS 65520
     RETURN
 #---------------------
@@ -323,7 +327,7 @@ Initialise_Notes:
 
 Initialise_Sprites:
     REM Initialise Sprites
-    VL = 53248 : REM Base Vic Address and Sprite Screen Location (X) Y pos = + 1
+    VL = 53248 :REM Base Vic Address and Sprite Screen Location (X) Y pos = +1
     SL = 16 : REM Base Sprite Pointer Location
     VR = 32768
     SP = VR + 1016 : REM Base Sprite Pointer Address Location
@@ -335,7 +339,12 @@ Initialise_Sprites:
     POKE VL+29, 0 : POKE VL+23, 255: rem width & height    
     FOR X = 0 TO 5 : POKE VL+39+X,0 : NEXT : REM Sprite Colours (0)
     
-    FOR X=0TO11 : FOR Y=0TO63 : READ Z : POKE VR + ((X+SL)*64) + Y,Z : NEXT : NEXT
+    FOR X = 0 TO 11
+    FOR Y = 0 TO 63
+    READ Z
+    POKE VR + ((X+SL)*64) + Y,Z
+    NEXT Y
+    NEXT X
 
     POKE VL+16,0 : REM Disable Sprites MSB (for x pos)
     POKE VL,40 : POKE VL+1,88: rem sprite 0 pos
@@ -403,9 +412,18 @@ Print_Status_Strip_Border:
     GOSUB Print_Instructions : REM Print Instructions
 
 Start_With_Random_Reels:
-    R1 = INT(RND(1)*16) AND 15:R1% = RO%(R1):POKE SP+0,SL+SO%(R1):POKE SP+1,SL+SO%(R1+1)
-    R2 = INT(RND(1)*16) AND 15:R2% = RO%(R2):POKE SP+2,SL+SO%(R2):POKE SP+3,SL+SO%(R2+1)
-    R3 = INT(RND(1)*16) AND 15:R3% = RO%(R3):POKE SP+4,SL+SO%(R3):POKE SP+5,SL+SO%(R3+1)
+    R1 = INT(RND(1)*16) AND 15
+    R1% = RO%(R1)
+    POKE SP+0,SL+SO%(R1) : POKE SP+1,SL+SO%(R1+1)
+
+    R2 = INT(RND(1)*16) AND 15
+    R2% = RO%(R2)
+    POKE SP+2,SL+SO%(R2) : POKE SP+3,SL+SO%(R2+1)
+
+    R3 = INT(RND(1)*16) AND 15
+    R3% = RO%(R3)
+    POKE SP+4,SL+SO%(R3) : POKE SP+5,SL+SO%(R3+1)
+
     POKE VL+21,63 : rem set sprites 0-5 visible
 
 #---------------------
@@ -442,19 +460,19 @@ Get_Reels:
 Get_Reels__Try_Reel_1:
     IF SA%(0) <= 0 THEN Get_Reels__Try_Reel_2
     R1 = (R1 - 1) AND 15 : REM Move Reel
-    POKE SP + 0, SL + SO%(R1) : POKE SP + 1, SL + SO%(R1+1) : REM Update Sprites
+    POKE SP + 0, SL + SO%(R1) : POKE SP + 1, SL + SO%(R1+1):REM Update Sprites
     SA%(0) = SA%(0) - 1
 
 Get_Reels__Try_Reel_2:
     IF SA%(1) <= 0 THEN Get_Reels__Try_Reel_3
     R2 = (R2 - 1) AND 15 : REM Move Reel
-    POKE SP + 2, SL + SO%(R2) : POKE SP + 3, SL + SO%(R2+1) : REM Update Sprites
+    POKE SP + 2, SL + SO%(R2) : POKE SP + 3, SL + SO%(R2+1):REM Update Sprites
     SA%(1) = SA%(1) - 1
 
 Get_Reels__Try_Reel_3:
     IF SA%(2) <= 0 THEN Get_Reels__Continue
     R3 = (R3 - 1) AND 15 : REM Move Reel
-    POKE SP + 4, SL + SO%(R3) : POKE SP + 5, SL + SO%(R3+1) : REM Update Sprites
+    POKE SP + 4, SL + SO%(R3) : POKE SP + 5, SL + SO%(R3+1):REM Update Sprites
     SA%(2) = SA%(2) - 1
 
 Get_Reels__Continue:
@@ -586,8 +604,11 @@ Title_Screen__Continue:
     PRINT "                                        ";
     PRINT "                     {grey3}GAME JAM BY RPI{white}";
 
-    IF LD THEN Wait_Title : REM If the game has loaded then wait for user on the title screen
-    GOTO Initialise_Program : REM Ready up the rest of the game while displaying screen to user
+    REM If the game has loaded then wait for user on the title screen
+    IF LD THEN Wait_Title
+
+    REM Ready up the rest of the game while displaying screen to user
+    GOTO Initialise_Program
 
     
 Define_Reel_Order:
