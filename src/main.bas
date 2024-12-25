@@ -81,15 +81,8 @@ Format_Credit_String__Set_Trailing_Zero:
 
 Print_Instructions:
     REM Print Instructions with no credits
-    IF CR > 0 THEN Print_Instructions__In_Credit
-    PRINT OS$(3,0);
-    RETURN
-#---------------------
-
-Print_Instructions__In_Credit:
-    REM Print Instructions when in credit
-    PRINT OS$(2,0);
-    RETURN
+    IF CR > 0 THEN PRINT OS$(2,0); : RETURN
+    PRINT OS$(3,0); : RETURN
 #---------------------
 
 Check_For_Win:
@@ -171,30 +164,16 @@ Print_Bet_Strip_Text:
 
 Print_Credit_Strip_Text:
     REM Print Credit Strip Text
-    SS$ = ""
     CV = CR : REM Set credit value for internal processing
     GOSUB Format_Credit_String : REM Print Credits
-    FOR I = LEN(CV$) TO 5 : REM Max length 6 - 1
-    SS$ = " " + SS$
-    NEXT I
-    SS$ = SS$ + "{92}" + CV$
 
     XP% = 31 : YP% = 1 : GOSUB Set_Cursor_Position
-    GOSUB Print_Strip_Text
-    RETURN
-#---------------------
 
-Print_Strip_Text:
-    REM Print_Strip_Text
-    TT$ = "" : REM String to blank previous screen characters
-    FOR I = 1 TO LEN(SS$)
-        TT$ = TT$ + " "
-    NEXT I
-
-    PRINT TT$;
+    PRINT OS$(1,0);
 
     GOSUB Set_Cursor_Position : REM Reset cursor position
-    PRINT SS$;
+
+    PRINT RIGHT$("      {92}" + CV$, 7);
     RETURN
 #---------------------
 
@@ -418,7 +397,7 @@ Initialise_Strings:
 
     DIM OS$(4,1) : REM Other Strings
     OS$(0,0) = "    " : OS$(0,1) = "0" : REM Bet 4 - X.XX
-    OS$(1,0) = "      " : OS$(1,1) = "0" : REM Credit 6 = XXX.XX
+    OS$(1,0) = "       " : OS$(1,1) = "0" : REM Credit 6 = {92}XXX.XX
     OS$(2,0) = "   [ S ] Spin  [+/-] BET  [ Q ] QUIT  " : OS$(2,1) = "0"
     OS$(3,0) = "   [ P ] PLAY AGAIN   [ Q ] QUIT      " : OS$(3,1) = "0"
 
