@@ -293,7 +293,11 @@ Nudge_Reel_3:
     RETURN
 
 Nudge_Reel_Continue:
-    GOSUB Play_Reel_Sound
+    REM Play Reel Sound
+    POKE SR + 1,10 : POKE SR,0 : REM Play Reel Sound Pitch
+    POKE SR + 4, 129 : REM GATE(1) + NOISE(128)
+    POKE SR + 4, 128 : REM GATE(0) + NOISE(128) : TURN SOUND OFF
+
     ND% = ND% - 1
 
     IF WS = 1 OR WS = 2 THEN RETURN
@@ -307,12 +311,6 @@ Play_Sound:
     POKE SR + 4, 32 : REM GATE(0) + SAWTOOTH(32) : TURN SOUND OFF
     RETURN
 #---------------------
-
-Play_Reel_Sound:
-    POKE SR + 1,10 : POKE SR,0 : REM Play Reel Sound Pitch
-    POKE SR + 4, 129 : REM GATE(1) + NOISE(128)
-    POKE SR + 4, 128 : REM GATE(0) + NOISE(128) : TURN SOUND OFF 
-    RETURN
 
 Play_Half_Win_Sound:
     DL = 125 : REM Note Delay
@@ -550,30 +548,43 @@ Get_Reels:
 
     IF RA% <= 0 THEN Get_Reels__Set_Win_Values
 
+    POKE SR + 1,10 : POKE SR,0 : REM Set Reel Sound Pitch
+
     REM Spin Reels - Reels will spin for at least 12 counts
     FOR RI=1 TO RA%
 
 Get_Reels__Try_Reel_1:
-    IF SA%(0) <= 0 THEN Get_Reels__Try_Reel_2
+    IF SA%(0) = 0 THEN Get_Reels__Try_Reel_2
     R1 = (R1 - 1) AND 15 : REM Move Reel
-    POKE SP + 0, SL + SO%(R1) : POKE SP + 1, SL + SO%(R1+1):REM Update Sprites
-    SA%(0) = SA%(0) - 1
+
+    REM Update Sprites
+    POKE SP + 0, SL + SO%(R1) : POKE SP + 1, SL + SO%(R1+1)
+    
+    SA%(0) = SA%(0) - 1 : REM Reduce spin amount
 
 Get_Reels__Try_Reel_2:
-    IF SA%(1) <= 0 THEN Get_Reels__Try_Reel_3
+    IF SA%(1) = 0 THEN Get_Reels__Try_Reel_3
     R2 = (R2 - 1) AND 15 : REM Move Reel
-    POKE SP + 2, SL + SO%(R2) : POKE SP + 3, SL + SO%(R2+1):REM Update Sprites
-    SA%(1) = SA%(1) - 1
+    
+    REM Update Sprites
+    POKE SP + 2, SL + SO%(R2) : POKE SP + 3, SL + SO%(R2+1)
+    
+    SA%(1) = SA%(1) - 1 : REM Reduce spin amount
 
 Get_Reels__Try_Reel_3:
-    IF SA%(2) <= 0 THEN Get_Reels__Continue
+    IF SA%(2) = 0 THEN Get_Reels__Continue
     R3 = (R3 - 1) AND 15 : REM Move Reel
-    POKE SP + 4, SL + SO%(R3) : POKE SP + 5, SL + SO%(R3+1):REM Update Sprites
-    SA%(2) = SA%(2) - 1
+    
+    REM Update Sprites
+    POKE SP + 4, SL + SO%(R3) : POKE SP + 5, SL + SO%(R3+1)
+    
+    SA%(2) = SA%(2) - 1 : REM Reduce spin amount
 
 Get_Reels__Continue:
-    REM only play click sound if reels are still spinning    
-    GOSUB Play_Reel_Sound  
+    REM only play click sound if reels are still spinning
+    REM Play Reel Sound
+    POKE SR + 4, 129 : REM GATE(1) + NOISE(128) : TURN SOUND ON
+    POKE SR + 4, 128 : REM GATE(0) + NOISE(128) : TURN SOUND OFF
 
     NEXT RI
 
