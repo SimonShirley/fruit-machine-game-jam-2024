@@ -350,6 +350,21 @@ Play_Full_Win_Sound:
     RETURN
 #---------------------
 
+Play_Game_Over_Sound:
+    DL = 125 : REM Note Delay
+
+    POKE SR + 1, NS%(0,0) : POKE SR, NS%(0,1)
+    GOSUB Play_Sound
+
+    POKE SR + 1, NS%(0,0) : POKE SR, NS%(0,1)
+    GOSUB Play_Sound
+    
+    POKE SR + 1, NS%(0,0) : POKE SR, NS%(0,1)
+    GOSUB Play_Sound
+    
+    RETURN
+#---------------------
+
 
 Initialise_Program:
     REM Initialise Program
@@ -626,9 +641,8 @@ Game_Over:
 
     XP% = 0 : YP% = 23 : GOSUB Set_Cursor_Position
     GOSUB Print_Instructions
+    GOSUB Play_Game_Over_Sound
     GOTO Get_User_Instruction
-
-
 
 #---------------------
 
