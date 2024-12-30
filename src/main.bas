@@ -10,11 +10,11 @@ REM Reduce Basic RAM Size
 POKE 55,255 : POKE 56,127 : CLR : REM Set end to $7FFF
 
 
-GOTO Title_Screen
+GOTO Title_Screen : REM Goto Title Screen
 
 Wait_Title:
-    GET K$ : IF K$ <> "S" THEN Wait_Title
-    GOTO Restart
+    GET K$ : IF K$ <> "S" THEN Wait_Title : REM Wait for Key
+    GOTO Restart : REM Goto Restart
 
 Get_User_Instruction:
 Check_String_Variable_Pointer:
@@ -27,11 +27,14 @@ Check_String_Variable_Pointer:
     REM Next instruction based on key press
     IF K$ = "Q" THEN END
 
+    REM If Credit is less than zero, do ending interactions
     IF CR <= 0 Then Get_User_Instruction__Credit_Less_Equal_Zero
 
+    REM Update Hold buttons
     IF HA% AND K$ = "1" THEN HR%(0) = NOT HR%(0) : GOSUB Print_Hold_Strip_1
     IF HA% AND K$ = "2" THEN HR%(1) = NOT HR%(1) : GOSUB Print_Hold_Strip_2
     IF HA% AND K$ = "3" THEN HR%(2) = NOT HR%(2) : GOSUB Print_Hold_Strip_3
+
     IF K$ = "-" OR K$ = "_" THEN Decrease_Bet : REM Decrease Bet
     IF K$ = "+" OR K$ = "=" THEN Increase_Bet : REM Increase Bet
     IF K$ = "S" THEN Play_Next_Credit : REM Play Next Credit
@@ -87,7 +90,11 @@ Print_Instructions:
 
 Check_For_Win:
     REM Check for Win
+    
+    REM Full Win
     IF R1% = R2% AND R2% = R3% THEN GOSUB Full_Win : FR = R1% : WS = 1
+
+    REM Half Win
     IF R1% = R2% AND R2% <> R3% THEN GOSUB Half_Win : FR = R1% : WS = 2
     
     GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
@@ -100,7 +107,7 @@ Check_For_Win:
 Full_Win:
     REM Full Win (All 3 matching)
     WI = (VAL(FR$(R1%,1)) * BT%) : REM WI = Winning amount
-    CR = CR + WI
+    CR = CR + WI : REM Add win amount to credit count
 
     REM Win amount string now handled in Print_Win_Strip_Text sub
     GOSUB Play_Full_Win_Sound : REM Play Full Win Sound
@@ -110,7 +117,7 @@ Full_Win:
 Half_Win:
     REM Half Win (Only first and second matching)
     WI = BT% * 2 : REM WI = Winning amount
-    CR = CR + WI
+    CR = CR + WI : REM Add win amount to credit count
     
     REM Win amount string now handled in Print_Win_Strip_Text sub
     GOSUB Play_Half_Win_Sound : REM Play Half Win Sound
@@ -128,28 +135,35 @@ Print_Win_Strip_Text:
     IF WS = 0 THEN RETURN
 
     XP% = 5 + VAL(WS$(WS,1)) : REM X Pos + Left Offset
-    YP% = 20 : GOSUB Set_Cursor_Position
+    YP% = 20 : GOSUB Set_Cursor_Position : REM Set Cursor Position
 
-    IF WS = 1 THEN Print_Win_Strip_Text__WS1
-    IF WS = 2 THEN Print_Win_Strip_Text__WS2
+    IF WS = 1 THEN Print_Win_Strip_Text__WS1 : REM WS1 Handler
+    IF WS = 2 THEN Print_Win_Strip_Text__WS2 : REM WS2 Handler
     IF WS = 3 THEN PRINT WS$(3,0) : RETURN
     IF WS = 4 OR WS = 5 THEN PRINT STR$(ND%) + " " + WS$(WS,0)
     RETURN
 
 Print_Win_Strip_Text__WS1:
+    REM WS1 Handler
     IF FR < 0 THEN Print_Win_Strip_Text__Print
-    REM Print Win Strip Lookup Value
+    REM Format Win Value
     CV = BT% * VAL(FR$(FR,1)) : GOSUB Format_Credit_String
 
     REM New X Pos + Fruit Text Offset
     XP% = XP% + VAL(FR$(FR,2))
 
+    REM Print Win Strip Text
     PRINT FR$(FR,0) + WS$(1,0) + CV$;
     RETURN 
 
 Print_Win_Strip_Text__WS2:
+    REM WS2 Handler
+    REM Format Win Value
     CV = BT% * 2 : GOSUB Format_Credit_String
+    
+    REM Print Win Strip Text
     PRINT WS$(2,0) + CV$
+
     RETURN
     
 #---------------------
@@ -157,8 +171,9 @@ Print_Win_Strip_Text__WS2:
 Print_Bet_Strip_Text:
     REM Print Credit Strip Text
     CV = BT% / 10 : REM Set credit value for internal processing
-    XP% = 11 : YP% = 1 : GOSUB Set_Cursor_Position
-    PRINT CA$(CV);
+    XP% = 11 : YP% = 1 : GOSUB Set_Cursor_Position : REM Set Cursor
+
+    PRINT CA$(CV); : REM Print Bet Strip Text
     RETURN
 #---------------------
 
@@ -167,71 +182,76 @@ Print_Credit_Strip_Text:
     CV = CR : REM Set credit value for internal processing
     GOSUB Format_Credit_String : REM Print Credits
 
-    XP% = 31 : YP% = 1 : GOSUB Set_Cursor_Position
+    XP% = 31 : YP% = 1 : GOSUB Set_Cursor_Position : REM Set Cursor
 
-    PRINT OS$(1,0);
-
+    PRINT OS$(1,0); : REM Blank Credit Strip Area
     GOSUB Set_Cursor_Position : REM Reset cursor position
 
+    REM Print Updated Credit Strip Text
     PRINT RIGHT$("      {92}" + CV$, 7);
     RETURN
 #---------------------
 
 Holds:
     REM Holds
-    GOSUB Reset_Holds
+    GOSUB Reset_Holds : REM Gosub Reset Holds
 
-    IF WS <> 0 THEN RETURN
+    IF WS <> 0 THEN RETURN : REM Win strip text is blank, return
 
     RD% = INT(RND(1) * 5) : REM Get Hold Chance 40%
     
     IF RD% >= 3 THEN HA% = -1 : REM Enable Holds
-    IF NOT HA% THEN RETURN
+    IF NOT HA% THEN RETURN : REM holds not available, return
 
-    GOSUB Print_Holds_Available
-    GOSUB Print_Hold_Strip_1
-    GOSUB Print_Hold_Strip_2
-    GOSUB Print_Hold_Strip_3
+    GOSUB Print_Holds_Available : REM Print Holds Available Text
+    GOSUB Print_Hold_Strip_1 : REM Print Hold 1 Button Text
+    GOSUB Print_Hold_Strip_2 : REM Print Hold 2 Button Text
+    GOSUB Print_Hold_Strip_3 : REM Print Hold 3 Button Text
 
     RETURN
 
 Reset_Holds:
     REM Reset Holds
-    HA% = 0
+    HA% = 0 : REM Holds Available = No
     FOR I = 0 TO 2 : HR%(I) = 0 : NEXT : REM Reset Holds
 
-    GOSUB Print_Hold_Strip_Blank
+    GOSUB Print_Hold_Strip_Blank : REM Blank Hold Strip Text
     RETURN
 
 Print_Hold_Strip_Blank:
     XP% = 0 : YP% = 17 : GOSUB Set_Cursor_Position
-    PRINT HT$(0);
+    PRINT HT$(0); : REM Blank Hold Strip Text
     RETURN
 
 Print_Hold_Strip_1:
+    REM Print Hold Strip 1 - Alternate Red and Green
     XP% = 2 : YP% = 17 : GOSUB Set_Cursor_Position
     IF HR%(0) THEN PRINT HT$(4) : RETURN
     PRINT HT$(1)
     RETURN
 
 Print_Hold_Strip_2:
+    REM Print Hold Strip 2 - Alternate Red and Green
     XP% = 8 : YP% = 17 : GOSUB Set_Cursor_Position
     IF HR%(1) THEN PRINT HT$(5) : RETURN
     PRINT HT$(2)
     RETURN
 
 Print_Hold_Strip_3:
+    REM Print Hold Strip 3 - Alternate Red and Green
     XP% = 14 : YP% = 17 : GOSUB Set_Cursor_Position
     IF HR%(2) THEN PRINT HT$(6) : RETURN
     PRINT HT$(3)
     RETURN
 
 Print_Holds_Available:
+    REM Print holds available text
     XP% = 22 : YP% = 17 : GOSUB Set_Cursor_Position
     PRINT HT$(7)
     RETURN
 
 Print_Nudges_Available:
+    REM Print nudges available text
     XP% = 22 : YP% = 17 : GOSUB Set_Cursor_Position
     PRINT HT$(8)
     RETURN
@@ -240,73 +260,81 @@ Nudges:
     NA% = 0 : REM Disable Nudges
     ND% = 0 : REM Number of Nudges
 
+    REM If there has been a win, return
     IF WS = 1 OR WS = 2 THEN RETURN
 
+    REM Nudge odds - 3 in 10
     RD% = INT(RND(1) * 9)
-
     IF RD% > 2 THEN RETURN
-    POKE 649,1 : REM Set keyboard buffer size to 1
-    NA% = -1
 
+    POKE 649,1 : REM Set keyboard buffer size to 1
+    NA% = -1 : REM Set Nudges available = yes (true = -1)
+
+    REM Randomise available nudges and display in win strip
     ND% = INT(RND(1) * 3) + 2
     WS = 4 : GOSUB Print_Win_Strip_Text
 
+    REM Set hold reels to show
     HR%(0) = -1 : HR%(1) = -1 : HR%(2) = -1
-    GOSUB Print_Nudges_Available
+    GOSUB Print_Nudges_Available : REM Print Nudges Available
 
 Nudges__Key_Loop:
-    GOSUB Print_Hold_Strip_1
-    GOSUB Print_Hold_Strip_2
-    GOSUB Print_Hold_Strip_3
+    GOSUB Print_Hold_Strip_1 : REM Update Reel 1 Button
+    GOSUB Print_Hold_Strip_2 : REM Update Reel 2 Button
+    GOSUB Print_Hold_Strip_3 : REM Update Reel 3 Button
 
-    GET K$
+    GET K$ : REM Get Keyboard Key
 
     IF K$ = "1" THEN GOSUB Nudge_Reel_1 : GOSUB Check_For_Win
     IF K$ = "2" THEN GOSUB Nudge_Reel_2 : GOSUB Check_For_Win
     IF K$ = "3" THEN GOSUB Nudge_Reel_3 : GOSUB Check_For_Win
     
+    REM If win detected, end nudging
     IF WS = 1 OR WS = 2 THEN RETURN 
 
+    REM Reverse hold button states
     HR%(0) = NOT HR%(0) : HR%(1) = NOT HR%(1) : HR%(2) = NOT HR%(2)
-    IF ND% <= 0 THEN RETURN
+    IF ND% <= 0 THEN RETURN : REM No nudges left
 
     REM Play Reel Sound Pitch - Run through to Play Sound
     POKE SR + 1, NS%(HR%(0) AND 1, 0) : POKE SR, NS%(HR%(0) AND 1, 1)
-    GOSUB Play_Sound
+    GOSUB Play_Sound : REM Gosub Play Sound
 
-    GOTO Nudges__Key_Loop
+    GOTO Nudges__Key_Loop : REM Nudges Key Loop
 
 Nudge_Reel_1:
     R1 = (R1 - 1) AND 15 : REM Move Reel
     POKE SP + 0, SL + SO%(R1) : POKE SP + 1, SL + SO%(R1+1):REM Update Sprites
-    R1% = RO%(R1 AND 15)
-    GOSUB Nudge_Reel_Continue
+    R1% = RO%(R1 AND 15) : REM Get Reel Value
+    GOSUB Nudge_Reel_Continue : REM Nudge Reel Continue
     RETURN
 
 Nudge_Reel_2:
     R2 = (R2 - 1) AND 15 : REM Move Reel
     POKE SP + 2, SL + SO%(R2) : POKE SP + 3, SL + SO%(R2+1):REM Update Sprites
-    R2% = RO%(R2 AND 15)
-    GOSUB Nudge_Reel_Continue
+    R2% = RO%(R2 AND 15) : REM Get Reel Value
+    GOSUB Nudge_Reel_Continue : REM Nudge Reel Continue
     RETURN
 
 Nudge_Reel_3:
     R3 = (R3 - 1) AND 15 : REM Move Reel
     POKE SP + 4, SL + SO%(R3) : POKE SP + 5, SL + SO%(R3+1):REM Update Sprites
-    R3% = RO%(R3 AND 15)
-    GOSUB Nudge_Reel_Continue
+    R3% = RO%(R3 AND 15) : REM Get Reel Value
+    GOSUB Nudge_Reel_Continue : REM Nudge Reel Continue
     RETURN
 
 Nudge_Reel_Continue:
+    REM Nudge Reel Continue
     REM Play Reel Sound
     POKE SR + 1,10 : POKE SR,0 : REM Play Reel Sound Pitch
     POKE SR + 4, 129 : REM GATE(1) + NOISE(128)
     POKE SR + 4, 128 : REM GATE(0) + NOISE(128) : TURN SOUND OFF
 
-    ND% = ND% - 1
+    ND% = ND% - 1 : REM Decrement Nudge Count
 
-    IF WS = 1 OR WS = 2 THEN RETURN
+    IF WS = 1 OR WS = 2 THEN RETURN REM If win, return
 
+    REM Update Win Strip Text
     WS = 4
     IF ND% = 1 THEN WS = 5
 
@@ -321,6 +349,7 @@ Play_Sound:
 #---------------------
 
 Play_Half_Win_Sound:
+    REM Play Half Win Sound
     DL = 125 : REM Note Delay
 
     POKE SR + 1, NS%(0,0) : POKE SR, NS%(0,1)
@@ -333,6 +362,7 @@ Play_Half_Win_Sound:
 #---------------------
 
 Play_Full_Win_Sound:
+    REM Play Full Win Sound
     DL = 125 : REM Note Delay
 
     POKE SR + 1, NS%(1,0) : POKE SR, NS%(1,1)
@@ -351,6 +381,7 @@ Play_Full_Win_Sound:
 #---------------------
 
 Play_Game_Over_Sound:
+    REM Play Game Over Sound
     DL = 125 : REM Note Delay
 
     POKE SR + 1, NS%(0,0) : POKE SR, NS%(0,1)
@@ -403,7 +434,7 @@ Intialise_Reel_Order:
 #---------------------
 
 Initialise_Strings:
-    DIM WS$(5,1) : REM String, Left padding
+    DIM WS$(5,1) : REM Win String, Left padding
     WS$(0,0) = "                              " : WS$(0,1) = "0"
     WS$(1,0) = " WIN - YOU WIN: {92}" : WS$(1,1) = "2"
     WS$(2,0) = "HALF WIN - YOU WIN: {92}" : WS$(2,1) = "2"
@@ -448,7 +479,7 @@ Initialise_Sprites:
     REM Initialise Sprites
     VL = 53248 :REM Base Vic Address and Sprite Screen Location (X) Y pos = +1
     SL = 16 : REM Base Sprite Pointer Location
-    VR = 32768
+    VR = 32768 : REM VIC Base Address (Bank 2)
     SP = VR + 1016 : REM Base Sprite Pointer Address Location
     
     POKE VL+37,10 : POKE VL+38,2: rem multicolors 1 & 2
@@ -458,6 +489,7 @@ Initialise_Sprites:
     POKE VL+29, 0 : POKE VL+23, 255: rem width & height    
     FOR X = 0 TO 5 : POKE VL+39+X,0 : NEXT : REM Sprite Colours (0)
     
+    REM Set Sprite Data
     FOR X = 0 TO 11
     FOR Y = 0 TO 63
     READ Z
@@ -480,7 +512,7 @@ Initialise_Sprites:
     XP% = 0 : YP% = 21 : GOSUB Set_Cursor_Position
     PRINT "  {180}        {grey3}- {light-red}PRESS {yellow}S{light-red} TO PLAY {grey3}-{white}       {182}  ";
 
-    GOTO Wait_Title
+    GOTO Wait_Title : REM Goto Wait Title Loop
 
 Restart:
     POKE VL+21,0 : rem set all sprites invisible
@@ -531,17 +563,18 @@ Print_Status_Strip_Border:
     GOSUB Print_Instructions : REM Print Instructions
 
 Start_With_Random_Reels:
+    REM Start With Random Reels
     R1 = INT(RND(1)*16) AND 15
-    R1% = RO%(R1)
-    POKE SP+0,SL+SO%(R1) : POKE SP+1,SL+SO%(R1+1)
+    R1% = RO%(R1) : REM Set Reel Value
+    POKE SP+0,SL+SO%(R1) : POKE SP+1,SL+SO%(R1+1) : REM Set Reel Sprite
 
     R2 = INT(RND(1)*16) AND 15
-    R2% = RO%(R2)
-    POKE SP+2,SL+SO%(R2) : POKE SP+3,SL+SO%(R2+1)
+    R2% = RO%(R2): REM Set Reel Value
+    POKE SP+2,SL+SO%(R2) : POKE SP+3,SL+SO%(R2+1) : REM Set Reel Sprite
 
     R3 = INT(RND(1)*16) AND 15
-    R3% = RO%(R3)
-    POKE SP+4,SL+SO%(R3) : POKE SP+5,SL+SO%(R3+1)
+    R3% = RO%(R3): REM Set Reel Value
+    POKE SP+4,SL+SO%(R3) : POKE SP+5,SL+SO%(R3+1) : REM Set Reel Sprite
 
     POKE VL+21,63 : rem set sprites 0-5 visible
 
@@ -570,6 +603,7 @@ Get_Reels:
     IF SA%(1) > RA% THEN RA% = SA%(1)
     IF SA%(2) > RA% THEN RA% = SA%(2)
 
+    REM If no movement required, skip movement logic
     IF RA% <= 0 THEN Get_Reels__Set_Win_Values
 
     POKE SR + 1,10 : POKE SR,0 : REM Set Reel Sound Pitch
@@ -578,7 +612,7 @@ Get_Reels:
     FOR RI=1 TO RA%
 
 Get_Reels__Try_Reel_1:
-    IF SA%(0) = 0 THEN Get_Reels__Try_Reel_2
+    IF SA%(0) = 0 THEN Get_Reels__Try_Reel_2 : REM Try Reel 2
     R1 = (R1 - 1) AND 15 : REM Move Reel
 
     REM Update Sprites
@@ -587,7 +621,7 @@ Get_Reels__Try_Reel_1:
     SA%(0) = SA%(0) - 1 : REM Reduce spin amount
 
 Get_Reels__Try_Reel_2:
-    IF SA%(1) = 0 THEN Get_Reels__Try_Reel_3
+    IF SA%(1) = 0 THEN Get_Reels__Try_Reel_3 : REM Try Reel 3
     R2 = (R2 - 1) AND 15 : REM Move Reel
     
     REM Update Sprites
@@ -596,7 +630,7 @@ Get_Reels__Try_Reel_2:
     SA%(1) = SA%(1) - 1 : REM Reduce spin amount
 
 Get_Reels__Try_Reel_3:
-    IF SA%(2) = 0 THEN Get_Reels__Continue
+    IF SA%(2) = 0 THEN Get_Reels__Continue  : REM Continue
     R3 = (R3 - 1) AND 15 : REM Move Reel
     
     REM Update Sprites
@@ -620,19 +654,19 @@ Get_Reels__Set_Win_Values:
 #---------------
 
     WS = 0
-    GOSUB Check_For_Win
+    GOSUB Check_For_Win : REM Check for Win
 
     REM Check if there is enough credit to bet
     IF BT% <= CR THEN Game_Loop__Continue
     BT% = INT(CR) : REM Reduce bet to remaining credit
-    GOSUB Print_Bet_Strip_Text
+    GOSUB Print_Bet_Strip_Text : REM Print Bet Strip
 
 Game_Loop__Continue:
-    IF CR <= 0 THEN Game_Over
+    IF CR <= 0 THEN Game_Over : REM Goto Game Over
     
-    GOSUB Nudges
-    GOSUB Holds
-    GOTO Get_User_Instruction
+    GOSUB Nudges : REM Gosub Nudges subroutine
+    GOSUB Holds : REM Gosub Holds subroutine
+    GOTO Get_User_Instruction : REM Back to user interaction loop
 
 Game_Over:
     GOSUB Reset_Holds : REM Reset Holds
@@ -640,9 +674,9 @@ Game_Over:
     WS = 3 : FR = -1 : GOSUB Print_Win_Strip_Text : REM Print Win Strip Text
 
     XP% = 0 : YP% = 23 : GOSUB Set_Cursor_Position
-    GOSUB Print_Instructions
-    GOSUB Play_Game_Over_Sound
-    GOTO Get_User_Instruction
+    GOSUB Print_Instructions : REM Print instructions
+    GOSUB Play_Game_Over_Sound : REM Play Game Over Sound
+    GOTO Get_User_Instruction : REM Goto user instruction loop
 
 #---------------------
 
@@ -664,8 +698,8 @@ Increase_Bet:
     GOSUB Play_Sound : REM Play Sound
 
 Increase_Decrease_Bet__Continue:
-    GOSUB Print_Bet_Strip_Text
-    GOTO Get_User_Instruction
+    GOSUB Print_Bet_Strip_Text : REM Print Bet Strip
+    GOTO Get_User_Instruction : REM Goto user instruction loop
 #---------------------
 
 Play_Next_Credit:
@@ -673,7 +707,7 @@ Play_Next_Credit:
     POKE 198,0 : REM Clear keyboard Buffer
 
     REM Deduct credit and play again
-    IF CR >= BT% THEN Play_Next_Credit__Deduct_Bet
+    IF CR >= BT% THEN Play_Next_Credit__Deduct_Bet :REM Go Deduct Bet
     CR = 0
 
     GOTO Play_Next_Credit__Continue
@@ -682,8 +716,8 @@ Play_Next_Credit__Deduct_Bet:
     CR = CR - BT%
 
 Play_Next_Credit__Continue:
-    GOSUB Print_Credit_Strip_Text
-    GOTO Game_Loop
+    GOSUB Print_Credit_Strip_Text : REM Print Credit Strip
+    GOTO Game_Loop : REM Goto game loop
 #---------------------
 
 Title_Screen:
