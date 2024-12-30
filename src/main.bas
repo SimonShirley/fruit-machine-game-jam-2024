@@ -133,7 +133,7 @@ Print_Win_Strip_Text:
     IF WS = 1 THEN Print_Win_Strip_Text__WS1
     IF WS = 2 THEN Print_Win_Strip_Text__WS2
     IF WS = 3 THEN PRINT WS$(3,0) : RETURN
-    IF WS = 4 THEN PRINT STR$(ND%) + " " + WS$(4,0)
+    IF WS = 4 OR WS = 5 THEN PRINT STR$(ND%) + " " + WS$(WS,0)
     RETURN
 
 Print_Win_Strip_Text__WS1:
@@ -302,7 +302,10 @@ Nudge_Reel_Continue:
 
     IF WS = 1 OR WS = 2 THEN RETURN
 
-    WS = 4 : GOSUB Print_Win_Strip_Text
+    WS = 4
+    IF ND% = 1 THEN WS = 5
+
+    GOSUB Print_Win_Strip_Text
     RETURN
 
 Play_Sound:
@@ -380,12 +383,13 @@ Intialise_Reel_Order:
 #---------------------
 
 Initialise_Strings:
-    DIM WS$(4,1) : REM String, Left padding
+    DIM WS$(5,1) : REM String, Left padding
     WS$(0,0) = "                              " : WS$(0,1) = "0"
     WS$(1,0) = " WIN - YOU WIN: {92}" : WS$(1,1) = "2"
     WS$(2,0) = "HALF WIN - YOU WIN: {92}" : WS$(2,1) = "2"
     WS$(3,0) = "GAME OVER" : WS$(3,1) = "11"
     WS$(4,0) = "NUDGES AVAILABLE" : WS$(4,1) = "5"
+    WS$(5,0) = "NUDGE  AVAILABLE" : WS$(5,1) = "5"
 
     DIM CA$(10) : REM Cash amount strings
     CA$(0) = "0.00" : CA$(1) = "0.10" : CA$(2) = "0.20"
