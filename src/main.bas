@@ -269,6 +269,11 @@ Nudges__Key_Loop:
 
     HR%(0) = NOT HR%(0) : HR%(1) = NOT HR%(1) : HR%(2) = NOT HR%(2)
     IF ND% <= 0 THEN RETURN
+
+    REM Play Reel Sound Pitch - Run through to Play Sound
+    POKE SR + 1, NS%(HR%(0) AND 1, 0) : POKE SR, NS%(HR%(0) AND 1, 1)
+    GOSUB Play_Sound
+
     GOTO Nudges__Key_Loop
 
 Nudge_Reel_1:
